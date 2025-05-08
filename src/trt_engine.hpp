@@ -11,6 +11,7 @@
 #include <fstream>
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 #include "cuda_utils.hpp"
 

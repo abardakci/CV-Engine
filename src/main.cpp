@@ -27,14 +27,14 @@ int main()
     cv::Mat input;
     cv::Mat output;
     input = cv::imread(imagePath);
-    
+
     int acc_time = 0;
     
     const int N = 10;
     for (int i = 0; i < N; ++i)
     {
         auto start = timer::now();
-
+         
         trt.infer(input, output);
         
         auto end = timer::now();
