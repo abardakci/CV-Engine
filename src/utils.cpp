@@ -1,13 +1,5 @@
 #include "utils.hpp"
 
-void getTiles(const cv::Mat& input, float* tiles, const int tileSize)
-{
-    int rowOffset = 0;
-    int colOffset = 0;
-    const int hTiles = std::ceil(input.rows / tileSize);
-    const int wTiles = std::ceil(input.cols / tileSize);
-}
-
 void printTime(const std::string &msg, timer::time_point start, timer::time_point end)
 {
     std::cout << msg << " --- " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "\n";
@@ -40,4 +32,32 @@ int loadBinaryFromFile(const std::string& fileName, std::vector<char>& output)
     }
 
     return 0;
+}
+
+void getTiles(const cv::Mat& input, float* tiles, const int wTileNum, const int hTileNum, const int tileSize, const int overlap)
+{
+    // overlap = tile_size - ((w - tile_size) / tile_number)
+    // stride = tile_size - overlap
+
+    const int w = input.cols;
+    const int h = input.rows;
+
+    int wStride = (w - tileSize) / wTileNum;
+    int hStride = (h - tileSize) / hTileNum;
+    
+    int tileByte = tileSize * tileSize * 3;
+    for (int i = 0; i < hTileNum; ++i)
+    {
+        for (int j = 0; j < wTileNum; ++j)
+        {
+            float* tilePtrOffset = tiles + (i * wTileNum + j) * tileByte;
+            int rowOffset = hStride * i;
+            int colOffset = wStride * j;
+
+            cv::Rect roi(colOffset, rowOffset, tileSize, tileSize);
+            cv::Mat tile = input(roi).clone();
+            std::memcpy(tilePtrOffset, tile.ptr<float>(), tileByte);
+        }
+    }
+
 }
