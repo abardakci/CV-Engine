@@ -15,7 +15,7 @@
 
 #include "utils.hpp"
 
-class Yolov8;
+class Yolov8; // forward declaration
 
 class Logger : public nvinfer1::ILogger 
 {
@@ -32,9 +32,9 @@ public:
     int infer(float* input, float* output);
 
 private:
+    nvinfer1::IRuntime* m_runtime;
     nvinfer1::ICudaEngine* m_engine;
     nvinfer1::IExecutionContext* m_ctx;
-    Logger m_logger;
 
     std::string m_input_name;
     std::string m_output_name;

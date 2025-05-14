@@ -8,20 +8,10 @@ find_package(CUDAToolkit REQUIRED)
 # OpenCV bulunuyor
 find_package(OpenCV REQUIRED)
 
-# TensorRT kök dizini
-set(TENSORRT_ROOT "C:/TensorRT-10.9.0.34")
+# TensorRT kök dizinini dışarıdan alınabilir hale getir
+set(TENSORRT_ROOT "C:/TensorRT-10.9.0.34" CACHE PATH "Path to TensorRT root directory")
 
-# CUDA compute capability: 8.6 → Ampere kartları (örneğin RTX 30 serisi)
-# set(CMAKE_CUDA_ARCHITECTURES 86)
-# set(CMAKE_CUDA_STANDARD 14)
-
-# TensorRT include klasörü
-# include_directories(
-#     ${TENSORRT_ROOT}/include
-#     ${OpenCV_INCLUDE_DIRS}
-# )
-
-# TensorRT lib dosyaları - **MANUEL** belirt
+# TensorRT lib dosyaları
 set(TENSORRT_LIBS
     ${TENSORRT_ROOT}/lib/nvinfer_10.lib
     ${TENSORRT_ROOT}/lib/nvinfer_dispatch_10.lib
@@ -48,14 +38,14 @@ target_link_libraries(RealUpscale PRIVATE
     CUDA::cudart
 )
 
-# Eğer istersen include path'leri target'a bağlayarak da yapabilirsin (daha modern)
+# Include path ayarları
 target_include_directories(RealUpscale PRIVATE
     ${TENSORRT_ROOT}/include
     ${OpenCV_INCLUDE_DIRS}
 )
 
-# find dll folder and copy dlls
-file(GLOB TENSORRT_DLLS "C:/TensorRT-10.9.0.34/lib/*.dll")
+# DLL dosyalarını build klasörüne kopyala
+file(GLOB TENSORRT_DLLS "${TENSORRT_ROOT}/lib/*.dll")
 
 add_custom_command(TARGET RealUpscale POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different

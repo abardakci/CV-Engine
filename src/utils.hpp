@@ -5,18 +5,22 @@
 #include <vector>
 #include <chrono>
 #include <memory>
+#include <algorithm>
 
 #include <opencv2/opencv.hpp>
 
 using timer = std::chrono::high_resolution_clock;
 
-void getTiles(const cv::Mat& input, float* tiles, const int wTileNum, const int hTileNum, const int tileSize, const int overlap);
-
 void printTime(const std::string &msg, timer::time_point start, timer::time_point end);
 
 int loadBinaryFromFile(const std::string& fileName, std::vector<char>& output);
 
-cv::Mat hwc2chw(const cv::Mat& hwcImage);
+cv::Mat letterbox(cv::Mat input, int w, int h);
+
+inline int clamp(int num, int min, int max)
+{
+    return min ? num < min : (max ? num > max : num);
+} 
 
 class Box
 {

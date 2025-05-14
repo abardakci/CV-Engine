@@ -1,5 +1,41 @@
 #include "utils.hpp"
 
+cv::Mat letterbox(cv::Mat input, int w, int h)
+{
+    if (input.rows == h && input.cols == w)
+    {
+        return input;
+    }
+
+    cv::Mat dst = cv::Mat::zeros(cv::Size(w, h), input.type());
+
+    int in_h = input.rows;
+    int in_w = input.cols;
+    float scale = std::min(static_cast<float>(w) / in_w, static_cast<float>(h) / in_h);
+
+    if (in_h > in_w)
+    {
+        int w_out = in_w * scale;
+
+        int pad_per_side = (640 - w_out) / 2;  
+        cv::Rect roi(pad_per_side, 0, w_out, 640);
+        cv::Mat roi_dst = dst(roi); 
+        cv::resize(input, roi_dst, roi_dst.size(), scale, scale);
+    }
+
+    else if (in_w > in_h)
+    {
+        int h_out = in_h * scale;
+
+        int pad_per_side = (640 - h_out) / 2;  
+        cv::Rect roi(0, pad_per_side, 640, h_out);
+        cv::Mat roi_dst = dst(roi); 
+        cv::resize(input, roi_dst, roi_dst.size(), scale, scale);
+    }
+
+    return dst;
+}
+
 void printTime(const std::string &msg, timer::time_point start, timer::time_point end)
 {
     std::cout << msg << " --- " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "\n";
@@ -32,59 +68,6 @@ int loadBinaryFromFile(const std::string& fileName, std::vector<char>& output)
     }
 
     return 0;
-}
-
-void getTiles(const cv::Mat& input, float* tiles, const int wTileNum, const int hTileNum, const int tileSize, const int overlap)
-{
-    // overlap = tile_size - ((w - tile_size) / tile_number)
-    // stride = tile_size - overlap
-
-    const int w = input.cols;
-    const int h = input.rows;
-
-    int wStride = (w - tileSize) / wTileNum;
-    int hStride = (h - tileSize) / hTileNum;
-    
-    int tileByte = tileSize * tileSize * 3;
-    for (int i = 0; i < hTileNum; ++i)
-    {
-        for (int j = 0; j < wTileNum; ++j)
-        {
-            float* tilePtrOffset = tiles + (i * wTileNum + j) * tileByte;
-            int rowOffset = hStride * i;
-            int colOffset = wStride * j;
-
-            cv::Rect roi(colOffset, rowOffset, tileSize, tileSize);
-            cv::Mat tile = input(roi).clone();
-            std::memcpy(tilePtrOffset, tile.ptr<float>(), tileByte);
-        }
-    }
-
-}
-
-cv::Mat hwc2chw(const cv::Mat& hwc) 
-{
-    // Check if image is valid
-    if (hwc.empty()) 
-    {
-        return cv::Mat();
-    }
-
-    // Get image dimensions
-    int height = hwc.rows;
-    int width = hwc.cols;
-    int channels = hwc.channels();
-
-    // Reshape to [H*W, C]
-    cv::Mat flat = hwc.reshape(1, height * width);
-
-    // Transpose to [C, H*W]
-    cv::Mat chw = flat.t();
-
-    // Reshape to [C, H, W]
-    chw = chw.reshape(1, channels);
-
-    return std::move(chw);
 }
 
 void draw_box(cv::Mat& target, const Box& box) 
