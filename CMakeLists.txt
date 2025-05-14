@@ -34,7 +34,6 @@ set(TENSORRT_LIBS
 # Proje kaynak dosyalarını al
 file(GLOB SRC
     "src/*.cpp"
-    # "src/*.cu"
     "src/*.c"
     "src/*.hpp"
 )

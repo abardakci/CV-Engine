@@ -1,7 +1,7 @@
 @echo off
 REM CUDA_NVCC_EXECUTABLE="C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.8/bin/nvcc.exe"
 REM Visual Studio 2022 paths
-set VS_PATH="C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.41.34120/bin/Hostx64/x64"
+@REM set VS_PATH="C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.41.34120/bin/Hostx64/x64"
 
 echo Cleaning previous build...
 if exist build\ninja-release rmdir /s /q build\ninja-release

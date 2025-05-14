@@ -1,5 +1,6 @@
 #include "trt_engine.hpp"
 #include "utils.hpp"
+#include "yolov8.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -7,42 +8,29 @@
 using namespace std;
 using namespace nvinfer1;
 
-int main()
-{    
+int main()    
+{   
     const string assets_root = "C:/VSCode_Repo/Real Upscale/assets/";
-    const string image_name = "image2.png";
-
-    const string imagePath = assets_root + image_name;
-    const string enginePath = assets_root + "real_x2.plan"; 
-    
-    std::vector<char> modelBinary;
-    int error = loadBinaryFromFile(enginePath, modelBinary);
-    
-    Logger logger;
-
-    unique_ptr<IRuntime> runtime(createInferRuntime(logger));
-    unique_ptr<ICudaEngine> engine(runtime->deserializeCudaEngine(modelBinary.data(), modelBinary.size())); 
-    TrtEngine trt(*engine.get());    
-
-    cv::Mat input;
-    cv::Mat output;
-    input = cv::imread(imagePath);
-
-    int acc_time = 0;
-    
-    const int N = 10;
-    for (int i = 0; i < N; ++i)
-    {
-        auto start = timer::now();
-         
-        trt.infer(input, output);
+    const string image_name = "highway.jpg";
+    const string image_path = assets_root + image_name;
+    const string path = "C:/VSCode_Repo/Real Upscale/assets/yolov8n.plan";
         
-        auto end = timer::now();
-        printTime("infer time", start, end);
+    cv::Mat input;
+    input = cv::imread(image_path);
 
-        acc_time += chrono::duration_cast<chrono::milliseconds>(end - start).count();
-    }
+    cv::Rect roi(0, 0, 640, 640);
+    cv::Mat input_crop = input(roi).clone();
+    
+    Yolov8 nn;
 
-    cout << "avg time: " << acc_time / N << endl;
-    cv::imwrite("output.png", output);
+    auto start = timer::now();
+        
+    std::vector<Box> boxes = nn.infer(input_crop);
+    
+    auto end = timer::now();
+    printTime("infer time", start, end);
+
+    draw_boxes(input_crop, boxes);
+
+    cv::imwrite("output2.png", input_crop);
 }

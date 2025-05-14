@@ -5,8 +5,6 @@
 #include <NvOnnxConfig.h>
 #include "cuda_runtime.h"
 
-#include <opencv2/opencv.hpp>
-
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -16,6 +14,8 @@
 #include "cuda_utils.hpp"
 
 #include "utils.hpp"
+
+class Yolov8;
 
 class Logger : public nvinfer1::ILogger 
 {
@@ -27,11 +27,20 @@ public:
 class TrtEngine
 {
 public:
-    TrtEngine(nvinfer1::ICudaEngine& engine);
+    TrtEngine(const std::string& engine_path);
     ~TrtEngine();
-    int infer(const cv::Mat& input, cv::Mat& output);
+    int infer(float* input, float* output);
 
 private:
-    std::unique_ptr<nvinfer1::IExecutionContext> m_ctx;
+    nvinfer1::ICudaEngine* m_engine;
+    nvinfer1::IExecutionContext* m_ctx;
+    Logger m_logger;
+
+    std::string m_input_name;
+    std::string m_output_name;
+
+    size_t m_input_size; 
+    size_t m_output_size;
     
+    friend class Yolov8;
 };
