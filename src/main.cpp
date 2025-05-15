@@ -20,7 +20,7 @@ int main()
 {           
     cv::Mat input = cv::imread(image_path);
     
-    Yolov8 nn;
+    Yolov8 nn(model_path);
 
     auto start = timer::now();
         
@@ -30,6 +30,6 @@ int main()
     printTime("infer time", start, end);
 
     draw_boxes(input, boxes);
-
-    cv::imwrite("output2.png", input);
+    
+    cv::imwrite("output.png", input);
 }

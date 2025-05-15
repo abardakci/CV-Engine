@@ -1,6 +1,6 @@
 #include "utils.hpp"
 
-cv::Mat letterbox(cv::Mat input, int w, int h)
+cv::Mat letterbox(cv::Mat input, letterbox_t& letter, int w, int h)
 {
     if (input.rows == h && input.cols == w)
     {
@@ -12,12 +12,15 @@ cv::Mat letterbox(cv::Mat input, int w, int h)
     int in_h = input.rows;
     int in_w = input.cols;
     float scale = std::min(static_cast<float>(w) / in_w, static_cast<float>(h) / in_h);
-
+    letter.scale = scale;
+    
     if (in_h > in_w)
     {
         int w_out = in_w * scale;
 
-        int pad_per_side = (640 - w_out) / 2;  
+        int pad_per_side = (640 - w_out) / 2;
+        letter.x_pad = pad_per_side;
+
         cv::Rect roi(pad_per_side, 0, w_out, 640);
         cv::Mat roi_dst = dst(roi); 
         cv::resize(input, roi_dst, roi_dst.size(), scale, scale);
@@ -28,6 +31,8 @@ cv::Mat letterbox(cv::Mat input, int w, int h)
         int h_out = in_h * scale;
 
         int pad_per_side = (640 - h_out) / 2;  
+        letter.y_pad = pad_per_side; 
+        
         cv::Rect roi(0, pad_per_side, 640, h_out);
         cv::Mat roi_dst = dst(roi); 
         cv::resize(input, roi_dst, roi_dst.size(), scale, scale);

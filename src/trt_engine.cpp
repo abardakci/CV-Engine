@@ -95,8 +95,7 @@ int TrtEngine::infer(float* input, float* output)
     }
 
     // Device -> Host kopyala
-    CUDA_CHECK(cudaMemcpyAsync(output, d_output, m_output_size * sizeof(float),
-               cudaMemcpyDeviceToHost, stream));
+    CUDA_CHECK(cudaMemcpyAsync(output, d_output, m_output_size * sizeof(float), cudaMemcpyDeviceToHost, stream));
 
     // Senkronizasyon
     CUDA_CHECK(cudaStreamSynchronize(stream));

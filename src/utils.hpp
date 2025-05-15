@@ -11,16 +11,22 @@
 
 using timer = std::chrono::high_resolution_clock;
 
+typedef struct {
+    int x_pad;
+    int y_pad;
+    float scale;
+} letterbox_t;
+
 void printTime(const std::string &msg, timer::time_point start, timer::time_point end);
 
 int loadBinaryFromFile(const std::string& fileName, std::vector<char>& output);
 
-cv::Mat letterbox(cv::Mat input, int w, int h);
+cv::Mat letterbox(cv::Mat input, letterbox_t& letter, int w, int h);
 
 inline int clamp(int num, int min, int max)
 {
-    return min ? num < min : (max ? num > max : num);
-} 
+    return num < min ? min : (num > max ? max : num);
+}
 
 class Box
 {
@@ -41,7 +47,16 @@ public:
     int y2;
     int class_id;
     float conf_score;
-
+    
+    void print()
+    {
+        std::cout << "x1: " << x1;
+        std::cout << ", y1: " << y1;
+        std::cout << ", x2: " << x2;
+        std::cout << ", y2: " << y2 << "\n";
+        std::cout << "class id: " << class_id << "\n";
+        std::cout << "conf score: " << conf_score << "\n";
+    }
 };
 
 void draw_box(cv::Mat& target, const Box& box);
