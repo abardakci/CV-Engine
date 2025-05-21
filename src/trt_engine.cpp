@@ -10,9 +10,9 @@ void Logger::log(ILogger::Severity severity, const char* msg) noexcept
     }
 }
 
-Logger logger;
+Logger gLogger;
 
-static size_t calc_tensor_size(const nvinfer1::Dims& dims)
+static size_t tensorSize(const nvinfer1::Dims& dims)
 {
     size_t size = 1;
     for (int i = 0; i < dims.nbDims; ++i)
@@ -24,7 +24,7 @@ static size_t calc_tensor_size(const nvinfer1::Dims& dims)
     return size;
 }
 
-static ICudaEngine* build_engine(IRuntime* runtime, const std::string& model_path)
+static ICudaEngine* buildEngine(IRuntime* runtime, const std::string& model_path)
 {
     std::vector<char> model_bin;
     loadBinaryFromFile(model_path, model_bin);
@@ -34,27 +34,27 @@ static ICudaEngine* build_engine(IRuntime* runtime, const std::string& model_pat
 
 TrtEngine::TrtEngine(const std::string& model_path)
 {    
-    m_runtime = createInferRuntime(logger);
+    runtime_ = createInferRuntime(gLogger);
     
-    m_engine = build_engine(m_runtime, model_path);
+    engine_ = buildEngine(runtime_, model_path);
 
-    m_ctx = m_engine->createExecutionContext();
+    ctx_ = engine_->createExecutionContext();
 
-    m_input_name = m_engine->getIOTensorName(0);
-    m_output_name = m_engine->getIOTensorName(1);
+    input_name_  = engine_->getIOTensorName(0);
+    output_name_ = engine_->getIOTensorName(1);
 
-    Dims input_dims  = m_ctx->getTensorShape(m_input_name.c_str());
-    Dims output_dims = m_ctx->getTensorShape(m_output_name.c_str());
+    input_dims_  = ctx_->getTensorShape(input_name_.c_str());
+    output_dims_ = ctx_->getTensorShape(output_name_.c_str());
 
-    m_input_size = calc_tensor_size(input_dims);
-    m_output_size = calc_tensor_size(output_dims);
+    input_size_  = tensorSize(input_dims_);
+    output_size_ = tensorSize(output_dims_);
 }
 
 TrtEngine::~TrtEngine()
 {
-    delete m_ctx;
-    delete m_engine;
-    delete m_runtime;
+    delete ctx_;
+    delete engine_;
+    delete runtime_;
 }
 
 int TrtEngine::infer(float* input, float* output)
@@ -68,15 +68,15 @@ int TrtEngine::infer(float* input, float* output)
     // Device memory tahsisi
     float* d_input; 
     float* d_output;
-    CUDA_CHECK(cudaMalloc(&d_input, m_input_size * sizeof(float)));
-    CUDA_CHECK(cudaMalloc(&d_output, m_output_size * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&d_input, input_size_ * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&d_output, output_size_ * sizeof(float)));
 
     // Host -> Device kopyala
-    CUDA_CHECK(cudaMemcpyAsync(d_input, input, m_input_size * sizeof(float), cudaMemcpyHostToDevice, stream));
+    CUDA_CHECK(cudaMemcpyAsync(d_input, input, input_size_ * sizeof(float), cudaMemcpyHostToDevice, stream));
 
     // Tensor adresleri
-    success  = m_ctx->setTensorAddress(m_input_name.c_str(), d_input);
-    success  = m_ctx->setTensorAddress(m_output_name.c_str(), d_output);
+    success  = ctx_->setTensorAddress(input_name_.c_str(), d_input);
+    success  = ctx_->setTensorAddress(output_name_.c_str(), d_output);
 
     if (!success) 
     {
@@ -86,7 +86,7 @@ int TrtEngine::infer(float* input, float* output)
     }
 
     // Inference
-    success = m_ctx->enqueueV3(stream);
+    success = ctx_->enqueueV3(stream);
     if (!success) 
     {
         std::cerr << "Inference failed" << std::endl;
@@ -95,7 +95,7 @@ int TrtEngine::infer(float* input, float* output)
     }
 
     // Device -> Host kopyala
-    CUDA_CHECK(cudaMemcpyAsync(output, d_output, m_output_size * sizeof(float), cudaMemcpyDeviceToHost, stream));
+    CUDA_CHECK(cudaMemcpyAsync(output, d_output, output_size_ * sizeof(float), cudaMemcpyDeviceToHost, stream));
 
     // Senkronizasyon
     CUDA_CHECK(cudaStreamSynchronize(stream));

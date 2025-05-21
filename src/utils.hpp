@@ -9,13 +9,9 @@
 
 #include <opencv2/opencv.hpp>
 
-using timer = std::chrono::high_resolution_clock;
+#include "cv_types.hpp"
 
-typedef struct {
-    int x_pad;
-    int y_pad;
-    float scale;
-} letterbox_t;
+using timer = std::chrono::high_resolution_clock;
 
 void printTime(const std::string &msg, timer::time_point start, timer::time_point end);
 
@@ -28,37 +24,15 @@ inline int clamp(int num, int min, int max)
     return num < min ? min : (num > max ? max : num);
 }
 
-class Box
+void drawBox(cv::Mat& target, const Box& box);
+
+void drawBoxes(cv::Mat& target, const std::vector<Box>& boxes);
+
+inline double euclidianDistance(int x1, int y1, int x2, int y2)
 {
-public:
-    Box(int x1, int y1, int x2, int y2, int class_id, float conf_score)
-    {
-        this->x1 = x1;
-        this->y1 = y1;
-        this->x2 = x2;
-        this->y2 = y2;
-        this->class_id = class_id;
-        this->conf_score = conf_score;
-    }
+    double dx = std::pow(x1 - x2, 2);
+    double dy = std::pow(y1 - y2, 2);
+    double d = std::sqrt(dx + dy);
 
-    int x1;
-    int y1;
-    int x2;
-    int y2;
-    int class_id;
-    float conf_score;
-    
-    void print()
-    {
-        std::cout << "x1: " << x1;
-        std::cout << ", y1: " << y1;
-        std::cout << ", x2: " << x2;
-        std::cout << ", y2: " << y2 << "\n";
-        std::cout << "class id: " << class_id << "\n";
-        std::cout << "conf score: " << conf_score << "\n";
-    }
+    return d;
 };
-
-void draw_box(cv::Mat& target, const Box& box);
-
-void draw_boxes(cv::Mat& target, const std::vector<Box>& boxes);

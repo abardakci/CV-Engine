@@ -32,15 +32,18 @@ public:
     int infer(float* input, float* output);
 
 private:
-    nvinfer1::IRuntime* m_runtime;
-    nvinfer1::ICudaEngine* m_engine;
-    nvinfer1::IExecutionContext* m_ctx;
+    nvinfer1::IRuntime* runtime_;
+    nvinfer1::ICudaEngine* engine_;
+    nvinfer1::IExecutionContext* ctx_;
 
-    std::string m_input_name;
-    std::string m_output_name;
+    std::string input_name_;
+    std::string output_name_;
 
-    size_t m_input_size; 
-    size_t m_output_size;
+    nvinfer1::Dims input_dims_;
+    nvinfer1::Dims output_dims_;
+
+    size_t input_size_; 
+    size_t output_size_;
     
     friend class Yolov8;
 };

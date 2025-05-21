@@ -3,7 +3,7 @@
 #include <NvInfer.h>
 #include <NvOnnxParser.h>
 #include <NvOnnxConfig.h>
-#include "cuda_runtime.h"
+#include <cuda_runtime.h>
 
 // Hata kontrol makrosu
 #define CUDA_CHECK(call) { \

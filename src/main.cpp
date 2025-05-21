@@ -1,6 +1,7 @@
 #include "trt_engine.hpp"
 #include "utils.hpp"
 #include "yolov8.hpp"
+#include "sort_tracker.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -21,15 +22,21 @@ int main()
     cv::Mat input = cv::imread(image_path);
     
     Yolov8 nn(model_path);
+    Tracker tracker;
+    
+    while (true)
+    {
+        auto start = timer::now();
 
-    auto start = timer::now();
+        std::vector<Box> boxes = nn.infer(input);
         
-    std::vector<Box> boxes = nn.infer(input);
-    
-    auto end = timer::now();
-    printTime("infer time", start, end);
+        tracker.SORT(boxes);
 
-    draw_boxes(input, boxes);
-    
+        drawBoxes(input, boxes);   
+
+        auto end = timer::now();
+        printTime("infer time", start, end);
+    }
+
     cv::imwrite("output.png", input);
 }

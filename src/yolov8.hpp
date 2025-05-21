@@ -14,13 +14,13 @@ public:
     Yolov8(const std::string& path);
     ~Yolov8();
 
-    cv::Mat pre_process(const cv::Mat& input, letterbox_t& letter);
+    cv::Mat preprocess(const cv::Mat& input, letterbox_t& letter);
     std::vector<Box> infer(const cv::Mat& input);
-    std::vector<Box> post_process(const cv::Mat& yolo_output, letterbox_t& letter, int h, int w);
-
+    std::vector<Box> postprocess(const cv::Mat& yolo_output, letterbox_t& letter, int h, int w);
+    
 private:
-    TrtEngine m_trt_engine;
-    int   num_of_class   = 80;
-    float conf_threshold = 0.45;
+    TrtEngine trt_engine_;
+    const int   kClassNum      = 80;
+    const float kConfThreshold = 0.25;
     
 };

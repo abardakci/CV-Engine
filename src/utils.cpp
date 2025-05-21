@@ -75,7 +75,7 @@ int loadBinaryFromFile(const std::string& fileName, std::vector<char>& output)
     return 0;
 }
 
-void draw_box(cv::Mat& target, const Box& box) 
+void drawBox(cv::Mat& target, const Box& box) 
 {
     // Renk ve font ayarları
     const cv::Scalar color(0, 120, 0); // Yeşil (BGR formatında)
@@ -84,18 +84,18 @@ void draw_box(cv::Mat& target, const Box& box)
     const int font_face = cv::FONT_HERSHEY_SIMPLEX;
 
     // Dikdörtgen çiz
-    cv::Point pt1(box.x1, box.y1);
-    cv::Point pt2(box.x2, box.y2);
+    cv::Point pt1(box.xyxy_.x1, box.xyxy_.y1);
+    cv::Point pt2(box.xyxy_.x2, box.xyxy_.y2);
     cv::rectangle(target, pt1, pt2, color, thickness);
 
     // Etiket metni (class_id + confidence)
-    std::string label = "Class " + std::to_string(box.class_id) + 
-                        " (" + std::to_string(box.conf_score).substr(0, 4) + ")";
+    std::string label = "Class " + std::to_string(box.class_id_) + 
+                        " (" + std::to_string(box.conf_score_).substr(0, 4) + ")";
 
     // Etiket için arka plan dikdörtgeni
     int baseline = 0;
     cv::Size text_size = cv::getTextSize(label, font_face, font_scale, 1, &baseline);
-    cv::Point text_org(box.x1, box.y1 - 5); // Üstte küçük boşluk bırak
+    cv::Point text_org(box.xyxy_.x1, box.xyxy_.y1 - 5); // Üstte küçük boşluk bırak
 
     // Arka planı çiz
     cv::rectangle(
@@ -119,10 +119,10 @@ void draw_box(cv::Mat& target, const Box& box)
     );
 }
 
-void draw_boxes(cv::Mat& target, const std::vector<Box>& boxes)
+void drawBoxes(cv::Mat& target, const std::vector<Box>& boxes)
 {
     for (auto box : boxes)
     {
-        draw_box(target, box);
+        drawBox(target, box);
     }
 }

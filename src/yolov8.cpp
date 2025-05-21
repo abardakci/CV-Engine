@@ -1,6 +1,6 @@
 #include "yolov8.hpp"
 
-Yolov8::Yolov8(const std::string& path) : m_trt_engine(path)
+Yolov8::Yolov8(const std::string& path) : trt_engine_(path)
 {
 
 }
@@ -13,22 +13,22 @@ Yolov8::~Yolov8()
 std::vector<Box> Yolov8::infer(const cv::Mat& input)
 {    
     letterbox_t letter = {0, 0, 1.0f};
-    cv::Mat input_blob = pre_process(input, letter);
+    cv::Mat input_blob = preprocess(input, letter);
 
     CV_Assert(input_blob.type() == CV_32FC1 && input_blob.isContinuous());
 
     float* input_data = reinterpret_cast<float*>(input_blob.data);
 
-    std::vector<float> output(m_trt_engine.m_output_size);
+    std::vector<float> output(trt_engine_.output_size_);
 
-    m_trt_engine.infer(input_data, output.data());
+    trt_engine_.infer(input_data, output.data());
     
-    std::vector<Box> out = post_process(cv::Mat(num_of_class + 4, 8400, CV_32F, output.data()), letter, input.rows, input.cols);
+    std::vector<Box> out = postprocess(cv::Mat(kClassNum + 4, 8400, CV_32F, output.data()), letter, input.rows, input.cols);
 
     return out;
 }
 
-cv::Mat Yolov8::pre_process(const cv::Mat& input, letterbox_t& letter)
+cv::Mat Yolov8::preprocess(const cv::Mat& input, letterbox_t& letter)
 {
     // resize & padding if necessary
     cv::Mat input_letter = letterbox(input, letter, 640, 640);  
@@ -43,7 +43,7 @@ cv::Mat Yolov8::pre_process(const cv::Mat& input, letterbox_t& letter)
     return output;
 }
 
-std::vector<Box> Yolov8::post_process(const cv::Mat& yolo_output, letterbox_t& letter, int image_h, int image_w)
+std::vector<Box> Yolov8::postprocess(const cv::Mat& yolo_output, letterbox_t& letter, int image_h, int image_w)
 {
     std::vector<Box> output_boxes;
 
@@ -61,7 +61,7 @@ std::vector<Box> Yolov8::post_process(const cv::Mat& yolo_output, letterbox_t& l
         for (int j = 4; j < 84; ++j)
         {
             float score = yolo_outputT.at<float>(i, j);   
-            if (score > conf_threshold)
+            if (score > kConfThreshold)
             {
                 max_score = score;
                 max_id = j - 4;
