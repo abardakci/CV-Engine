@@ -36,17 +36,16 @@ public:
 class Track
 {
 public:
-    Track(Box b);
+    Track(Box b, int track_id);
     ~Track();
-    void update();
     void correction(const Box& b);
     int get_xhat() const;
     int get_yhat() const;
-
-    long id_;
-    int age_;
+    
     Box bbox_;
     cv::KalmanFilter kf_;
+    long track_id_;
+    int age_ = 0;
 
 };
 

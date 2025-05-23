@@ -2,7 +2,10 @@
 
 static cv::Mat computeCostMatrix(const std::vector<Track>& tracks, const std::vector<Box>& detects)
 {
-    cv::Mat cost_mat(cv::Size(tracks.size(), detects.size()), CV_32F);
+    int w = detects.size();
+    int h = tracks.size();
+
+    cv::Mat cost_mat(cv::Size(w, h), CV_32F);
     for (int i = 0; i < tracks.size(); ++i)
     {
         for (int j = 0; j < detects.size(); ++j)
@@ -14,14 +17,16 @@ static cv::Mat computeCostMatrix(const std::vector<Track>& tracks, const std::ve
     return cost_mat;
 }
 
-Tracker::Tracker()
+Tracker::Tracker() {}
+
+Tracker::~Tracker() {}
+
+void Tracker::predict() 
 {
-
-}
-
-Tracker::~Tracker()
-{
-
+    for (auto& t : tracks_)
+    {
+        t.kf_.predict();
+    }
 }
 
 void Tracker::SORT(std::vector<Box>& detects)
@@ -30,28 +35,26 @@ void Tracker::SORT(std::vector<Box>& detects)
 // State: active_tracks ← list of existing Kalman filters
 
 // 1. Predict next position of all active_tracks using Kalman Filter
-    for (auto track : tracks_)
-    {   
-        track.update();
-    }
+    predict();
 
 // 2. Compute cost_matrix between predicted tracks and current detections
 //     → cost = 1 - IoU(predicted_box, detection_box)   # Or Euclidean distance
     cv::Mat cost_mat = computeCostMatrix(tracks_, detects); // ith row, jth col = cost between ith track and jth detection
 
-    std::vector<int> matchings(tracks_.size());
-    std::vector<bool> is_available(detects.size());
- 
-    const float threshold = 10;
 // 3. Apply Hungarian Algorithm to find optimal matches between tracks and detections
+    std::vector<int> matchings(tracks_.size(), -1);
+    std::vector<bool> is_available(detects.size(), true);
+
+    const float threshold = 30;
+
     for (int i = 0; i < tracks_.size(); ++i)
     {
-        float temp_min = FLT_MIN;
+        float temp_min = FLT_MAX;
         int min_index = -1;
         
         for (int j = 0; j < detects.size(); ++j)
         {
-            if (temp_min < cost_mat.at<float>(i, j) && is_available[j])
+            if (cost_mat.at<float>(i, j) < temp_min && is_available[j])
             {
                 temp_min = cost_mat.at<float>(i, j);
                 min_index = j;        
@@ -61,8 +64,10 @@ void Tracker::SORT(std::vector<Box>& detects)
         if (min_index != -1 && cost_mat.at<float>(i, min_index) < threshold)
         {
             assert(is_available[min_index]);
-            is_available[min_index] = false;
+            assert(min_index >= 0 && min_index < is_available.size());
+
             matchings[i] = min_index;
+            is_available[min_index] = false;
         }
     }
 
@@ -73,11 +78,13 @@ void Tracker::SORT(std::vector<Box>& detects)
     {
         if (matchings[i] != -1)
         {
+            tracks_[i].age_ = 0;
             tracks_[i].correction(detects[matchings[i]]);
+            tracks_[i].bbox_ = std::move(detects[i]);
         }
         else
         {
-            tracks_[i].age_ = 1;
+            tracks_[i].age_ += 1;
         }   
     }
 
@@ -96,15 +103,12 @@ void Tracker::SORT(std::vector<Box>& detects)
 
 // 6. For unmatched detections:
 //     a. Initialize new Kalman filters (new tracks)    
-
     for (int i = 0; i < detects.size(); ++i)
     {
         if (is_available[i])
         {
-            tracks_.emplace_back(std::move(detects[i]));
+            tracks_.emplace_back(std::move(detects[i]), ++highest_id_);
         }
     }
 
-// 7. Return updated list of tracks
-    return;
 }

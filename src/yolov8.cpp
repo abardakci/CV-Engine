@@ -24,6 +24,8 @@ std::vector<Box> Yolov8::infer(const cv::Mat& input)
     trt_engine_.infer(input_data, output.data());
     
     std::vector<Box> out = postprocess(cv::Mat(kClassNum + 4, 8400, CV_32F, output.data()), letter, input.rows, input.cols);
+    
+    nms(out, kNmsThreshold, false);
 
     return out;
 }

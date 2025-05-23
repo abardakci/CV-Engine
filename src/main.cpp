@@ -11,32 +11,57 @@ using namespace nvinfer1;
 
 const string assets_root = "C:/VSCode_Repo/Real Upscale/assets/";
 
+const string video_name = "traffic2.mp4";
 const string image_name = "highway.jpg";
 const string model_name = "yolov8n.plan";
 
+const string video_path = assets_root + video_name;
 const string image_path = assets_root + image_name;
 const string model_path = assets_root + model_name;
 
 int main()    
-{           
-    cv::Mat input = cv::imread(image_path);
-    
+{
+    cv::VideoCapture cap(video_path);
+    if (!cap.isOpened())
+    {
+        std::cerr << "Failed to open video: " << video_path << std::endl;
+        return -1;
+    }
+
     Yolov8 nn(model_path);
     Tracker tracker;
-    
-    while (true)
+
+    cv::Mat frame;
+    while (cap.read(frame))
     {
+        if (frame.empty()) break;
+
         auto start = timer::now();
 
-        std::vector<Box> boxes = nn.infer(input);
+        vector<Box> boxes = nn.infer(frame);
         
+        cout << boxes.size() << endl;  
+        
+        // drawBoxes(frame, boxes);
+
         tracker.SORT(boxes);
 
-        drawBoxes(input, boxes);   
+        for (auto& track : tracker.tracks_)
+        {
+            drawTrack(frame, track);
+        }
+
+        std::cout << "Active tracks: " << tracker.tracks_.size() << std::endl;
 
         auto end = timer::now();
         printTime("infer time", start, end);
+
+        cv::imshow("Tracker", frame);
+        if (cv::waitKey(1) == 'q') break;
     }
 
-    cv::imwrite("output.png", input);
+    cap.release();
+    cv::destroyAllWindows();
+
+    return 0;
 }

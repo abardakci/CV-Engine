@@ -21,6 +21,7 @@ public:
 private:
     TrtEngine trt_engine_;
     const int   kClassNum      = 80;
+    const float kNmsThreshold = 0.45;
     const float kConfThreshold = 0.25;
     
 };

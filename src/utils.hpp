@@ -28,6 +28,8 @@ void drawBox(cv::Mat& target, const Box& box);
 
 void drawBoxes(cv::Mat& target, const std::vector<Box>& boxes);
 
+void drawTrack(cv::Mat& target, Track& track);
+
 inline double euclidianDistance(int x1, int y1, int x2, int y2)
 {
     double dx = std::pow(x1 - x2, 2);
@@ -36,3 +38,6 @@ inline double euclidianDistance(int x1, int y1, int x2, int y2)
 
     return d;
 };
+
+float iou(Box& b1, Box& b2);
+void nms(std::vector<Box>& bboxes, float conf_threshold = 0.25f, bool is_sorted = false);

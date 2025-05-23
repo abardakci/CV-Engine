@@ -17,9 +17,13 @@ class Tracker
 public:
     Tracker();
     ~Tracker();
+
+    void predict();
     void SORT(std::vector<Box>& detects);
 
-private:
     std::vector<Track> tracks_;
-    
+
+private:
+    long highest_id_ = 0;
+
 };

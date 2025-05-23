@@ -126,3 +126,119 @@ void drawBoxes(cv::Mat& target, const std::vector<Box>& boxes)
         drawBox(target, box);
     }
 }
+
+void drawTrack(cv::Mat& target, Track& track)
+{
+    // Renk ve font ayarları
+    const cv::Scalar color(0, 120, 0); // Yeşil (BGR formatında)
+    const int thickness = 1;
+    const float font_scale = 0.3;
+    const int font_face = cv::FONT_HERSHEY_SIMPLEX;
+
+    // Dikdörtgen çiz
+    cv::Point pt1(track.bbox_.xyxy_.x1, track.bbox_.xyxy_.y1);
+    cv::Point pt2(track.bbox_.xyxy_.x2, track.bbox_.xyxy_.y2);
+    cv::rectangle(target, pt1, pt2, color, thickness);
+
+    // Etiket metni (class_id + confidence)
+    std::string label = "Track id " + std::to_string(track.track_id_) + 
+                        " (" + std::to_string(track.bbox_.conf_score_).substr(0, 4) + ")";
+
+    // Etiket için arka plan dikdörtgeni
+    int baseline = 0;
+    cv::Size text_size = cv::getTextSize(label, font_face, font_scale, 1, &baseline);
+    cv::Point text_org(track.bbox_.xyxy_.x1, track.bbox_.xyxy_.y1 - 5); // Üstte küçük boşluk bırak
+
+    // Arka planı çiz
+    cv::rectangle(
+        target, 
+        cv::Rect(text_org.x, text_org.y - text_size.height, 
+                text_size.width, text_size.height + baseline), 
+        color, 
+        cv::FILLED
+    );
+
+    // Metni yaz
+    cv::putText(
+        target, 
+        label, 
+        text_org, 
+        font_face, 
+        font_scale, 
+        cv::Scalar(0, 0, 0), // Siyah metin
+        1, 
+        cv::LINE_AA
+    );
+
+}
+
+float iou(Box &b1, Box& b2)
+{
+    if (b1.xyxy_.x1 > b2.xyxy_.x2 || b1.xyxy_.x2 < b2.xyxy_.x1 ||
+        b1.xyxy_.y1 > b2.xyxy_.y2 || b1.xyxy_.y2 < b2.xyxy_.y1)
+    {
+        return 0.0f;
+    }
+
+    int x_left   = std::max(b1.xyxy_.x1, b2.xyxy_.x1);
+    int y_left   = std::max(b1.xyxy_.y1, b2.xyxy_.y1);
+    int x_right  = std::min(b1.xyxy_.x2, b2.xyxy_.x2);
+    int y_right  = std::min(b1.xyxy_.y2, b2.xyxy_.y2);
+
+    int inter_width = x_right - x_left;
+    int inter_height = y_right - y_left;
+
+    int inter_area = inter_width * inter_height;
+
+    int b1_area = (b1.xyxy_.x2 - b1.xyxy_.x1) * (b1.xyxy_.y2 - b1.xyxy_.y1);
+    int b2_area = (b2.xyxy_.x2 - b2.xyxy_.x1) * (b2.xyxy_.y2 - b2.xyxy_.y1);
+
+    int union_area = b1_area + b2_area - inter_area;
+
+    if (union_area == 0) 
+    {
+        return 0.0f;
+    }
+
+    return static_cast<float>(inter_area) / static_cast<float>(union_area);
+}
+
+static bool compareBoxes(const Box& b1, const Box& b2)
+{
+    return b1.conf_score_ > b2.conf_score_;
+}
+
+void nms(std::vector<Box>& bboxes, float iou_threshold, bool is_sorted)
+{
+    if (!is_sorted)
+        std::sort(bboxes.begin(), bboxes.end(), compareBoxes);
+
+    
+    std::vector<Box> result_boxes;
+    std::vector<bool> suppressed(bboxes.size(), false);
+    
+    for (int i = 0; i < bboxes.size(); ++i)
+    {
+        if (suppressed[i]) 
+            continue;
+
+        result_boxes.push_back(bboxes[i]);
+
+        for (int j = i + 1; j < bboxes.size(); ++j)
+        {
+            if (suppressed[j]) 
+            {
+                continue;
+            }
+
+            float current_iou = iou(bboxes[i], bboxes[j]);
+
+            if (current_iou > iou_threshold) 
+            {
+                suppressed[j] = true;
+            }
+        }
+    }
+
+    bboxes = result_boxes;
+}
