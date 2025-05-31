@@ -48,7 +48,8 @@ int main()
 
         for (auto& track : tracker.tracks_)
         {
-            drawTrack(frame, track);
+            if (track.age_ == 0)
+                drawTrack(frame, track);
         }
 
         std::cout << "Active tracks: " << tracker.tracks_.size() << std::endl;

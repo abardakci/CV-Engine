@@ -1,24 +1,29 @@
-#include "sort_tracker.hpp"
+#include "sort_tracker.hpp" 
 
 static cv::Mat computeCostMatrix(const std::vector<Track>& tracks, const std::vector<Box>& detects)
 {
-    int w = detects.size();
-    int h = tracks.size();
+    int w = detects.size(); // Sütun sayısı (tespitler)
+    int h = tracks.size();   // Satır sayısı (izler)
 
-    cv::Mat cost_mat(cv::Size(w, h), CV_32F);
-    for (int i = 0; i < tracks.size(); ++i)
+    cv::Mat cost_mat(cv::Size(w, h), CV_32F); // Maliyet matrisi oluştur
+
+    for (int i = 0; i < h; ++i) // Her iz için
     {
-        for (int j = 0; j < detects.size(); ++j)
+        for (int j = 0; j < w; ++j) // Her tespit için
         {
-            cost_mat.at<float>(i, j) = euclidianDistance(detects[j].xywh_.x, detects[j].xywh_.y, tracks[i].get_xhat(), tracks[i].get_yhat());
+            // İz tahmini ile tespit arasındaki Öklid mesafesini hesapla
+            float d = euclidianDistance(detects[j].xywh_.x, detects[j].xywh_.y, tracks[i].get_xhat(), tracks[i].get_yhat());
+            cost_mat.at<float>(i, j) = d; // Maliyet matrisine ata
         }
     }
 
     return cost_mat;
 }
 
-Tracker::Tracker() {}
+// Tracker sınıfının yapıcı metodu
+Tracker::Tracker() : highest_id_(0) {} // highest_id_ başlatıldı
 
+// Tracker sınıfının yıkıcı metodu
 Tracker::~Tracker() {}
 
 void Tracker::predict() 
@@ -37,78 +42,88 @@ void Tracker::SORT(std::vector<Box>& detects)
 // 1. Predict next position of all active_tracks using Kalman Filter
     predict();
 
-// 2. Compute cost_matrix between predicted tracks and current detections
-//     → cost = 1 - IoU(predicted_box, detection_box)   # Or Euclidean distance
-    cv::Mat cost_mat = computeCostMatrix(tracks_, detects); // ith row, jth col = cost between ith track and jth detection
-
-// 3. Apply Hungarian Algorithm to find optimal matches between tracks and detections
-    std::vector<int> matchings(tracks_.size(), -1);
-    std::vector<bool> is_available(detects.size(), true);
-
-    const float threshold = 30;
-
-    for (int i = 0; i < tracks_.size(); ++i)
+    // 2. Tahmin edilen izler ve mevcut tespitler arasında maliyet matrisini hesapla
+    //    Maliyet = Öklid mesafesi (tahmin edilen kutu, tespit kutusu)
+    const float threshold = 300; // Eşleşme için maksimum kabul edilebilir mesafe eşiği
+    cv::Mat cost_mat = computeCostMatrix(tracks_, detects, threshold);
+    
+    // Eğer maliyet matrisi boşsa (iz veya tespit yok), erken çıkış yap
+    if (cost_mat.empty() || cost_mat.rows == 0 || cost_mat.cols == 0) 
     {
-        float temp_min = FLT_MAX;
-        int min_index = -1;
-        
-        for (int j = 0; j < detects.size(); ++j)
-        {
-            if (cost_mat.at<float>(i, j) < temp_min && is_available[j])
-            {
-                temp_min = cost_mat.at<float>(i, j);
-                min_index = j;        
-            }
-        }
-        
-        if (min_index != -1 && cost_mat.at<float>(i, min_index) < threshold)
-        {
-            assert(is_available[min_index]);
-            assert(min_index >= 0 && min_index < is_available.size());
-
-            matchings[i] = min_index;
-            is_available[min_index] = false;
-        }
-    }
-
-// 4. For each matched pair (track_i, detection_j):
-//     a. Update track_i using detection_j (Kalman filter correction)
-//     b. Mark track_i as updated
-    for (int i = 0; i < tracks_.size(); ++i)
-    {
-        if (matchings[i] != -1)
-        {
-            tracks_[i].age_ = 0;
-            tracks_[i].correction(detects[matchings[i]]);
-            tracks_[i].bbox_ = std::move(detects[i]);
-        }
-        else
-        {
-            tracks_[i].age_ += 1;
-        }   
-    }
-
-// 5. For unmatched tracks:
-//     a. Increase "age" or "missed" count
-//     b. If missed too many times, delete the track
-    tracks_.erase(
-        std::remove_if(
-            tracks_.begin(), 
-            tracks_.end(), 
-            [](const Track& t) { 
-                return t.age_ > 10; 
-            }
-        ), 
-        tracks_.end());
-
-// 6. For unmatched detections:
-//     a. Initialize new Kalman filters (new tracks)    
-    for (int i = 0; i < detects.size(); ++i)
-    {
-        if (is_available[i])
+        // Unmatched detections will be created as new tracks
+        for (int i = 0; i < detects.size(); ++i)
         {
             tracks_.emplace_back(std::move(detects[i]), ++highest_id_);
         }
+
+        return;
     }
+
+    // 3. Macar Algoritmasını uygulayarak izler ve tespitler arasında optimal eşleşmeleri bul
+    std::vector<int> assignments(tracks_.size(), -1); // İz -> Tespit eşleşmelerini tutar (-1 eşleşmeme)
+    HungarianAlgorithm(cost_mat, assignments);
+
+    // Eşleşen tespitleri işaretlemek için bir vektör
+    std::vector<bool> used_detections(detects.size(), false);
+
+    for (int i = 0; i < assignments.size(); ++i)
+    {
+        std::cout << assignments[i] << std::endl;
+    }
+
+    // 4. Her eşleşen çift (iz_i, tespit_j) için:
+    //    a. tespit_j'yi kullanarak iz_i'yi güncelle (Kalman filtresi düzeltmesi)
+    //    b. tespit_j'yi kullanıldı olarak işaretle
+    for (int i = 0; i < assignments.size(); ++i) // İzler üzerinde döngü
+    {
+        int j = assignments[i]; // İz 'i' için atanan tespit indeksi
+
+        // ÖNEMLİ DÜZELTME: j'nin geçerli bir indeks olup olmadığını kontrol et
+        // ve j'nin 'detects' vektörünün sınırları içinde olduğundan emin ol.
+        if (j != -1 && j < detects.size())
+        {
+            // Eşleşmenin maliyet eşiğinin altında olup olmadığını kontrol et
+            if (i < cost_mat.rows && j < cost_mat.cols && cost_mat.at<float>(i, j) <= threshold)
+            {
+                tracks_[i].age_ = 0; // Eşleşen iz için yaşı sıfırla
+                tracks_[i].correction(detects[j]); // İz'i tespit ile düzelt
+                tracks_[i].bbox_ = std::move(detects[j]); // Sınırlayıcı kutuyu güncelle
+                used_detections[j] = true; // Bu tespiti kullanıldı olarak işaretle
+            }
+            else
+            {
+                // Maliyet eşiğin üzerindeyse, eşleşmemiş olarak kabul et
+                tracks_[i].age_ += 1; // Eşleşmeyen iz için yaşı artır
+            }
+        }
+        else
+        {
+            // İz 'i' hiçbir tespitle eşleşmedi (j = -1)
+            if (j==-1) tracks_[i].age_ += 1; // Eşleşmeyen iz için yaşı artır
+        }
+    }
+
+    // 5. Eşleşmeyen izler için:
+    //    a. "yaş" veya "kaçırılan" sayısını artır
+    //    b. Çok fazla kez kaçırıldıysa, izi sil
+    tracks_.erase(
+        std::remove_if(
+            tracks_.begin(),
+            tracks_.end(),
+            [](const Track& t) {
+                return t.age_ > 10; // 10 kareden fazla eşleşmeyen izleri sil
+            }
+        ),
+        tracks_.end());
+
+    // 6. Eşleşmeyen tespitler için:
+    //    a. Yeni Kalman filtreleri (yeni izler) başlat
+    for (int i = 0; i < detects.size(); ++i)
+    {
+        if (!used_detections[i]) // Eğer bu tespit kullanılmadıysa (yani eşleşmediyse)
+        {
+            tracks_.emplace_back(std::move(detects[i]), ++highest_id_); // Yeni bir iz olarak ekle
+        }
+    }       
 
 }

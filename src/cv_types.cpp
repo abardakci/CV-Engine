@@ -16,10 +16,7 @@ Box::Box(int x1, int y1, int x2, int y2, int class_id, float conf_score)
     conf_score_ = conf_score;
 }
 
-Box::~Box()
-{
-
-}
+Box::~Box() {}
 
 void Box::print()
 {
@@ -58,10 +55,7 @@ Track::Track(Box bbox, int track_id) : bbox_(bbox), kf_(4, 2), track_id_(track_i
     initKalmanFilter(kf_, bbox.xywh_.x, bbox.xywh_.y);
 }
 
-Track::~Track()
-{
-
-}
+Track::~Track() {}
 
 int Track::get_xhat() const
 {
