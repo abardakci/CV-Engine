@@ -47,6 +47,8 @@ public:
     long track_id_;
     int age_ = 0;
 
+private:
+
 };
 
 typedef struct {

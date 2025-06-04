@@ -9,7 +9,7 @@
 using namespace std;
 using namespace nvinfer1;
 
-const string assets_root = "C:/VSCode_Repo/Real Upscale/assets/";
+const string assets_root = "C:/VSCode_Repo/Vision-Engine/assets/";
 
 const string video_name = "traffic2.mp4";
 const string image_name = "highway.jpg";
@@ -20,7 +20,7 @@ const string image_path = assets_root + image_name;
 const string model_path = assets_root + model_name;
 
 int main()    
-{
+{    
     cv::VideoCapture cap(video_path);
     if (!cap.isOpened())
     {

@@ -1,11 +1,8 @@
 cmake_minimum_required(VERSION 3.18)
 
-project(RealUpscale LANGUAGES C CXX)
+project(VisionEngine LANGUAGES C CXX)
 
-# CUDA Toolkit bulunuyor
 find_package(CUDAToolkit REQUIRED)
-
-# OpenCV bulunuyor
 find_package(OpenCV REQUIRED)
 
 # TensorRT kök dizinini dışarıdan alınabilir hale getir
@@ -29,17 +26,17 @@ file(GLOB SRC
 )
 
 # Executable oluştur
-add_executable(RealUpscale ${SRC})
+add_executable(VisionEngine ${SRC})
 
 # Bağlantı ayarları
-target_link_libraries(RealUpscale PRIVATE
+target_link_libraries(VisionEngine PRIVATE
     ${TENSORRT_LIBS}
     ${OpenCV_LIBS}
     CUDA::cudart
 )
 
 # Include path ayarları
-target_include_directories(RealUpscale PRIVATE
+target_include_directories(VisionEngine PRIVATE
     ${TENSORRT_ROOT}/include
     ${OpenCV_INCLUDE_DIRS}
 )
@@ -47,8 +44,8 @@ target_include_directories(RealUpscale PRIVATE
 # DLL dosyalarını build klasörüne kopyala
 file(GLOB TENSORRT_DLLS "${TENSORRT_ROOT}/lib/*.dll")
 
-add_custom_command(TARGET RealUpscale POST_BUILD
+add_custom_command(TARGET VisionEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${TENSORRT_DLLS}
-        $<TARGET_FILE_DIR:RealUpscale>
+        $<TARGET_FILE_DIR:VisionEngine>
 )

@@ -18,7 +18,9 @@ public:
     Tracker();
     ~Tracker();
 
-    void predict();
+    void estimateAllTracks();
+    void addNewTrack(Box& new_box);
+    void removeOldTracks(const int age_limit = 10);
     void SORT(std::vector<Box>& detects);
 
     std::vector<Track> tracks_;

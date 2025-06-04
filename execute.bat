@@ -4,6 +4,6 @@ REM echo Running the output...
 REM build\ninja-release\YourExecutableName.exe
 
 @echo off
-"build\ninja-release\RealUpscale.exe"
+"build\msvc-debug\VisionEngine.exe"
 
 echo ----------------------------PROGRAM END----------------------------

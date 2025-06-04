@@ -47,7 +47,6 @@ static void initKalmanFilter(cv::KalmanFilter& kf, int x, int y)
     setIdentity(kf.errorCovPost, cv::Scalar::all(1));
 
     kf.statePost = (cv::Mat_<float>(4, 1) << x, y, 0, 0);
-
 }
 
 Track::Track(Box bbox, int track_id) : bbox_(bbox), kf_(4, 2), track_id_(track_id)
@@ -67,11 +66,11 @@ int Track::get_yhat() const
     return static_cast<int>(kf_.statePost.at<float>(1));
 }
 
-void Track::correction(const Box& b)
+void Track::correction(const Box& true_box)
 {
     cv::Mat measurement_mat = (cv::Mat_<float>(2, 1) <<
-        b.xywh_.x,
-        b.xywh_.y);
+        true_box.xywh_.x,
+        true_box.xywh_.y);
 
     kf_.correct(measurement_mat);
 }

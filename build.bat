@@ -4,10 +4,10 @@ REM Visual Studio 2022 paths
 @REM set VS_PATH="C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.41.34120/bin/Hostx64/x64"
 
 echo Cleaning previous build...
-if exist build\ninja-release rmdir /s /q build\ninja-release
+if exist build\msvc-debug rmdir /s /q build\msvc-debug
 
 echo Configuring project with CMake presets...
-cmake --preset=windows-ninja
+cmake --preset=msvc-debug
 if %errorlevel% neq 0 (
     echo CMake configuration failed!
     pause
@@ -15,7 +15,7 @@ if %errorlevel% neq 0 (
 )
 
 echo Building project with Ninja...
-cd build\ninja-release
+cd build\msvc-debug
 ninja
 if %errorlevel% neq 0 (
     echo Build failed!
@@ -30,10 +30,10 @@ cd ..\..
 
 REM Optional: Run the compiled executable
 REM echo Running the output...
-REM build\ninja-release\YourExecutableName.exe
+REM build\msvc-debug\YourExecutableName.exe
 
 @echo off
-"build\ninja-release\RealUpscale.exe"
+"build\msvc-debug\VisionEngine.exe"
 
 echo ----------------------------PROGRAM END----------------------------
 
