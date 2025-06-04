@@ -11,6 +11,19 @@
 
 #include "cv_types.hpp"
 
+#include <NvInfer.h>
+#include <cuda_runtime.h>
+
+// Hata kontrol makrosu
+#define CUDA_CHECK(call) { \
+    cudaError_t err = call; \
+    if (err != cudaSuccess) { \
+        std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__ << ": " \
+                  << cudaGetErrorString(err) << std::endl; \
+        exit(EXIT_FAILURE); \
+    } \
+}
+
 using timer = std::chrono::high_resolution_clock;
 
 void printTime(const std::string &msg, timer::time_point start, timer::time_point end);

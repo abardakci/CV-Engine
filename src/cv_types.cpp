@@ -73,4 +73,7 @@ void Track::correction(const Box& true_box)
         true_box.xywh_.y);
 
     kf_.correct(measurement_mat);
+
+    bbox_ = std::move(true_box);
+    age_ = 0;
 }

@@ -1,7 +1,7 @@
 #include "sort_tracker.hpp" 
 
-// Maximum weight matching
-void hungarian(cv::Mat& cost_matrix, std::vector<int>& assignment) 
+// Hungarian Algorithm
+std::vector<int> hungarian(cv::Mat& cost_matrix) 
 {
     const int rows = cost_matrix.rows;
     const int cols = cost_matrix.cols;
@@ -13,6 +13,8 @@ void hungarian(cv::Mat& cost_matrix, std::vector<int>& assignment)
     cv::Rect roi = cv::Rect(0, 0, cols, rows);
     cost_matrix.copyTo(cost_padded(roi));
 
+    std::vector<int> assignment(n, -1);
+    
     // Dual variable initialization
     std::vector<float> u(n, 0), v(n, 0);
     std::vector<int> match_v(n, -1);
@@ -92,6 +94,8 @@ void hungarian(cv::Mat& cost_matrix, std::vector<int>& assignment)
         }
     }
 
+    return assignment;
+
 }
 
 static cv::Mat computeCostMatrix(const std::vector<Track>& tracks, const std::vector<Box>& detects)
@@ -144,8 +148,6 @@ void Tracker::addNewTrack(Box& b)
 
 void Tracker::SORT(std::vector<Box>& detects)
 {
-    // Input: detections (bounding boxes) for current frame
-    // State: active_tracks ← list of existing Kalman filters
     if (detects.size() == 0 || tracks_.size() == 0) 
     {
         // Unmatched detections will be created as new tracks
@@ -157,51 +159,42 @@ void Tracker::SORT(std::vector<Box>& detects)
         return;
     }
 
-    // 1. Kalman filter prediction for all activate tracks
+    // Kalman filter prediction for all activate tracks
     estimateAllTracks();
 
     constexpr float threshold = 30.0f;
     cv::Mat cost_mat = computeCostMatrix(tracks_, detects);
 
-    std::vector<int> assignments(tracks_.size(), -1);
     // Maximum weight matching assignment (hungarian algorithm)
-    hungarian(cost_mat, assignments);
+    std::vector<int> assignments = hungarian(cost_mat);
     
-    // Eşleşen tespitleri işaretlemek için bir vektör
     std::vector<bool> used_detections(detects.size(), false);
 
-    // 4. Her eşleşen çift (iz_i, tespit_j) için:
-    //    a. tespit_j'yi kullanarak iz_i'yi güncelle (Kalman filtresi düzeltmesi)
-    //    b. tespit_j'yi kullanıldı olarak işaretle
-    for (int i = 0; i < assignments.size(); ++i) // İzler üzerinde döngü
+    for (int i = 0; i < assignments.size(); ++i)
     {
-        int label = assignments[i]; // İz 'i' için atanan tespit indeksi
+        int label = assignments[i]; // assigned detection of ith track
 
         if (label != -1)
         {
-            // Eşleşmenin maliyet eşiğinin altında olup olmadığını kontrol et
             if (i < cost_mat.rows && label < cost_mat.cols && cost_mat.at<float>(i, label) <= threshold)
             {
-                tracks_[i].age_ = 0; // Eşleşen iz için yaşı sıfırla
-                tracks_[i].correction(detects[label]); // İz'i tespit ile düzelt
-                tracks_[i].bbox_ = detects[label]; // Sınırlayıcı kutuyu güncelle
-                used_detections[label] = true; // Bu tespiti kullanıldı olarak işaretle
+                tracks_[i].correction(detects[label]);
+                used_detections[label] = true;
             }
             else
             {
-                // Maliyet eşiğin üzerindeyse, eşleşmemiş olarak kabul et
-                tracks_[i].age_ += 1; // Eşleşmeyen iz için yaşı artır
+                if (i < tracks_.size())
+                    tracks_[i].age_ += 1;
             }
         }
         else
-        {
-            // İz 'i' hiçbir tespitle eşleşmedi (j = -1)
-            if (label == -1) 
-                ++tracks_[i].age_; // Eşleşmeyen iz için yaşı artır
+        { 
+            tracks_[i].age_ += 1;
         }
     }
 
-    removeOldTracks(10);
+    constexpr int age_threshold = 10;
+    removeOldTracks(age_threshold);
 
     // For unmatched detections, create new tracks 
     for (int i = 0; i < detects.size(); ++i)

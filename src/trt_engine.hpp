@@ -11,8 +11,6 @@
 #include <memory>
 #include <algorithm>
 
-#include "cuda_utils.hpp"
-
 #include "utils.hpp"
 
 class Yolov8; // forward declaration
