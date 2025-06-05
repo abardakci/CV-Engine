@@ -162,7 +162,7 @@ void Tracker::SORT(std::vector<Box>& detects)
     // Kalman filter prediction for all activate tracks
     estimateAllTracks();
 
-    constexpr float threshold = 30.0f;
+    constexpr float threshold = 50.0f;
     cv::Mat cost_mat = computeCostMatrix(tracks_, detects);
 
     // Maximum weight matching assignment (hungarian algorithm)
