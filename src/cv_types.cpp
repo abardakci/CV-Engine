@@ -66,7 +66,7 @@ int Track::get_yhat() const
     return static_cast<int>(kf_.statePost.at<float>(1));
 }
 
-void Track::correction(const Box& true_box)
+void Track::correction(Box& true_box)
 {
     cv::Mat measurement_mat = (cv::Mat_<float>(2, 1) <<
         true_box.xywh_.x,

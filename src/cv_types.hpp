@@ -38,7 +38,7 @@ class Track
 public:
     Track(Box b, int track_id);
     ~Track();
-    void correction(const Box& b);
+    void correction(Box& b);
     int get_xhat() const;
     int get_yhat() const;
     

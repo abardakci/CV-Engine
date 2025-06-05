@@ -7,11 +7,10 @@
 #include <fstream>
 
 using namespace std;
-using namespace nvinfer1;
 
 const string assets_root = "C:/VSCode_Repo/Vision-Engine/assets/";
 
-const string video_name = "traffic2.mp4";
+const string video_name = "traffic3.mp4";
 const string image_name = "highway.jpg";
 const string model_name = "yolov8n.plan";
 
@@ -40,10 +39,6 @@ int main()
 
         vector<Box> boxes = nn.infer(frame);
         
-        cout << boxes.size() << endl;  
-        
-        // drawBoxes(frame, boxes);
-
         tracker.SORT(boxes);
 
         for (auto& track : tracker.tracks_)
@@ -55,7 +50,7 @@ int main()
         std::cout << "Active tracks: " << tracker.tracks_.size() << std::endl;
 
         auto end = timer::now();
-        printTime("infer time", start, end);
+        printTime("total tracker time", start, end);
 
         cv::imshow("Tracker", frame);
         if (cv::waitKey(1) == 'q') break;

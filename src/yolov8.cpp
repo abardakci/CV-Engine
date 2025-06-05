@@ -35,7 +35,7 @@ cv::Mat Yolov8::preprocess(const cv::Mat& input, letterbox_t& letter)
     // resize & padding if necessary
     cv::Mat input_letter = letterbox(input, letter, 640, 640);  
 
-    // nhwc  to nchw
+    // nhwc to nchw
     cv::Mat input_blob = cv::dnn::blobFromImage(input_letter);
     
     // uchar to fp32&normalization
