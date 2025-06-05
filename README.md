@@ -1,3 +1,16 @@
+### Computer Vision Toy Project
+- This project implements several core computer vision algorithms, including:
+
+- YOLO with TensorRT: High-performance object detection pipeline using ONNX models converted to TensorRT .plan format.
+
+- SORT (Simple Online and Realtime Tracking): Object tracking based on YOLO detections. (paper)
+
+- Additional features and experimental modules are being added as part of ongoing exploration.
+
+- The goal is to build a lightweight and modular CV pipeline using C++, OpenCV, and NVIDIA tools.
+
+- !!! Currently tested only on Windows. Linux support is planned but not yet implemented.
+
 ### Build Requirements
 - This is a CMake-based project. You must have CMake installed for configuration.
 
