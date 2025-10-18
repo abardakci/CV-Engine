@@ -8,7 +8,7 @@
 
 using namespace std;
 
-const string assets_root = "C:/VSCode_Repo/Vision-Engine/assets/";
+const string assets_root = "/home/alper/code-repo/vision-engine/assets/";
 
 const string video_name = "traffic3.mp4";
 const string image_name = "highway.jpg";

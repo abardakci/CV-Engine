@@ -18,16 +18,6 @@ Box::Box(int x1, int y1, int x2, int y2, int class_id, float conf_score)
 
 Box::~Box() {}
 
-void Box::print()
-{
-    std::cout << "x1: "   << xyxy_.x1
-              << ", y1: " << xyxy_.y1
-              << ", x2: " << xyxy_.x2
-              << ", y2: " << xyxy_.y2 << "\n"
-              << "id: "   << class_id_ << "\n"
-              << "score: " << conf_score_ << "\n";
-}
-
 static void initKalmanFilter(cv::KalmanFilter& kf, int x, int y)
 {
     // 4 state: x, y, vx, vy
@@ -46,7 +36,7 @@ static void initKalmanFilter(cv::KalmanFilter& kf, int x, int y)
     setIdentity(kf.measurementNoiseCov, cv::Scalar::all(1e-1));
     setIdentity(kf.errorCovPost, cv::Scalar::all(1));
 
-    kf.statePost = (cv::Mat_<float>(4, 1) << x, y, 0, 0);
+    kf.statePost = (cv::Mat_<float>(4, 1) << x, y, 0.0f, 0.0f);
 }
 
 Track::Track(Box bbox, int track_id) : bbox_(bbox), kf_(4, 2), track_id_(track_id)
