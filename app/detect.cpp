@@ -26,8 +26,8 @@ int main(int argc, char** argv)
         std::cerr << "Failed to open video: " << video_path << std::endl;
         return -1;
     }
-
-    Yolov8 nn(model_path);
+    auto trt = std::make_unique<TrtEngine>();    
+    Yolov8 nn(model_path, std::move(trt));
 
     cv::Mat frame;
     while (cap.read(frame))
@@ -35,7 +35,9 @@ int main(int argc, char** argv)
         if (frame.empty()) break;
 
         auto start = timer::now();
+
         vector<Box> boxes = nn.infer(frame);
+        
         auto end = timer::now();
         printTime("Inference time", start, end);
         

@@ -32,11 +32,18 @@ static ICudaEngine* buildEngine(IRuntime* runtime, const std::string& model_path
     return runtime->deserializeCudaEngine(model_bin.data(), model_bin.size()); 
 }
 
-TrtEngine::TrtEngine(const std::string& model_path)
-{    
+TrtEngine::~TrtEngine()
+{
+    delete ctx_;
+    delete engine_;
+    delete runtime_;
+}
+
+void TrtEngine::initialize(const std::string &path)
+{
     runtime_ = createInferRuntime(gLogger);
     
-    engine_ = buildEngine(runtime_, model_path);
+    engine_ = buildEngine(runtime_, path);
 
     ctx_ = engine_->createExecutionContext();
 
@@ -48,13 +55,6 @@ TrtEngine::TrtEngine(const std::string& model_path)
 
     input_size_  = tensorSize(input_dims_);
     output_size_ = tensorSize(output_dims_);
-}
-
-TrtEngine::~TrtEngine()
-{
-    delete ctx_;
-    delete engine_;
-    delete runtime_;
 }
 
 int TrtEngine::infer(float* input, float* output)
@@ -104,4 +104,14 @@ int TrtEngine::infer(float* input, float* output)
     cudaFree(d_input); 
     cudaFree(d_output);
     return 0;
+}
+
+size_t TrtEngine::input_size() const
+{
+    return input_size_;
+}
+
+size_t TrtEngine::output_size() const
+{
+    return output_size_;
 }

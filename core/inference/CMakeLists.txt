@@ -1,5 +1,4 @@
 add_library(core_infer STATIC
-    trt_engine.cpp
     yolo_detector.cpp
 )
 

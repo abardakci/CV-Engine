@@ -31,7 +31,9 @@ include_directories(/usr/local/cuda-12.8/targets/x86_64-linux/include/)
 add_subdirectory(core/common)     # core_common
 add_subdirectory(core/cv_impl)    # core_cv
 add_subdirectory(core/algorithms) # core_algo
-# add_subdirectory(core/tracking)   # core_tracker
+add_subdirectory(core/nn_backend) # core_engine
+
+# add_subdirectory(core/tracking) # core_tracker
 add_subdirectory(core/inference)  # core_infer
 
 # ----------------------------------------
@@ -44,6 +46,7 @@ target_link_libraries(yolo PUBLIC
     core_cv
     core_algo
     core_infer
+    core_engine
     ${OpenCV_LIBS}
     CUDA::cudart
     ${TRT_LIBS}

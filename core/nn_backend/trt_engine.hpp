@@ -1,15 +1,16 @@
 #pragma once
 
 #include <NvInfer.h>
+#include "cuda_runtime.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <memory>
 #include <algorithm>
-#include "file_io.hpp"
 
-#include "cuda_runtime.h"
+#include "file_io.hpp"
+#include "engine_interface.hpp"
 
 class Yolov8; // forward declaration
 
@@ -20,12 +21,14 @@ public:
 
 };
 
-class TrtEngine
+class TrtEngine : public IEngine
 {
 public:
-    TrtEngine(const std::string& engine_path);
-    ~TrtEngine();
-    int infer(float* input, float* output);
+    ~TrtEngine() override;
+    void initialize(const std::string& path) override;
+    int infer(float* input, float* output) override;
+    size_t input_size() const override;
+    size_t output_size() const override;
 
 private:
     nvinfer1::IRuntime* runtime_;

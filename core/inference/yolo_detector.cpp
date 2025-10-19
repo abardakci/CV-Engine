@@ -1,6 +1,11 @@
 #include "yolo_detector.hpp"
 
-Yolov8::Yolov8(const std::string &path) : trt_engine_(path) {}
+Yolov8::Yolov8(const std::string &path, std::unique_ptr<IEngine> engine) : engine_(std::move(engine))
+{
+    engine_->initialize(path);
+    output_size_ = engine_->output_size();
+    input_size_ = engine_->input_size(); 
+}
 
 Yolov8::~Yolov8() {}
 
@@ -12,9 +17,9 @@ std::vector<Box> Yolov8::infer(const cv::Mat &input)
     CV_Assert(input_blob.type() == CV_32FC1 && input_blob.isContinuous());
     float *input_data = reinterpret_cast<float *>(input_blob.data);
 
-    std::vector<float> output(trt_engine_.output_size_);
+    std::vector<float> output(output_size_);
 
-    trt_engine_.infer(input_data, output.data());
+    engine_->infer(input_data, output.data());
 
     std::vector<Box> out = postprocess(cv::Mat(kClassNum + 4, 8400, CV_32F, output.data()), letter, input.rows, input.cols);
 
@@ -50,6 +55,7 @@ std::vector<Box> Yolov8::postprocess(const cv::Mat &yolo_output, letterbox_t &le
     int max_id = 0;
     float max_score = 0.0f;
 
+    float* output_ptr = yolo_outputT.ptr<float>();
     for (int i = 0; i < 8400; ++i)
     {
         valid = false;

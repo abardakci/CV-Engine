@@ -8,3 +8,4 @@ build*
 .vs*
 out*
 install*
+scripts/build.cpp

@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 {       
     std::filesystem::path exe_path = std::filesystem::absolute(argv[0]);
     std::filesystem::path config_path = exe_path.parent_path() / "config/config.yaml";
-    std::cout << "hi" << config_path;
+
     YAML::Node config = YAML::LoadFile(config_path.string());
     std::string video_path = config["assets"]["demo_video"].as<string>();
     std::string model_path = config["assets"]["model_path"].as<string>();
@@ -27,7 +27,6 @@ int main(int argc, char** argv)
     }
 
     Yolov8 nn(model_path);
-    Tracker tracker;
 
     cv::Mat frame;
     while (cap.read(frame))
@@ -43,7 +42,7 @@ int main(int argc, char** argv)
         for (auto& track : tracker.tracks_)
         {
             if (track.age_ == 0)
-                drawTrack(frame, track);
+                drawBox(frame, track);
         }
 
         std::cout << "Active tracks: " << tracker.tracks_.size() << std::endl;
