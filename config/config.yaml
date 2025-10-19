@@ -1,7 +1,0 @@
-yolo:
-  class_num: 80
-  nms_threshold: 0.45
-  conf_thresold: 0.25
-
-tracker:
-  age_limit: 10

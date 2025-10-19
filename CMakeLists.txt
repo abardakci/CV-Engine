@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.18)
 
 project(VisionEngine LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ----------------------------------------
@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ----------------------------------------
 find_package(CUDAToolkit REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 # ----------------------------------------
 # TensorRT package (manually)
@@ -36,9 +37,9 @@ add_subdirectory(core/inference)  # core_infer
 # ----------------------------------------
 # Executable target: Object Detector
 # ----------------------------------------
-add_executable(Detector app/detect.cpp)
+add_executable(yolo app/detect.cpp)
 
-target_link_libraries(Detector PUBLIC
+target_link_libraries(yolo PUBLIC
     core_common
     core_cv
     core_algo
@@ -46,12 +47,18 @@ target_link_libraries(Detector PUBLIC
     ${OpenCV_LIBS}
     CUDA::cudart
     ${TRT_LIBS}
+    yaml-cpp
 )
 
-target_include_directories(Detector PRIVATE
+target_include_directories(yolo PRIVATE
     ${OpenCV_INCLUDE_DIRS}
     ${TRT_INCLUDES}
 )
+
+# Install executable
+install(TARGETS yolo RUNTIME                     DESTINATION ${CMAKE_SOURCE_DIR}/install)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/config DESTINATION ${CMAKE_SOURCE_DIR}/install)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/assets DESTINATION ${CMAKE_SOURCE_DIR}/install)
 
 # ----------------------------------------
 # Executable target: Object Tracker

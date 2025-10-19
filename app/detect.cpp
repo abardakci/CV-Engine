@@ -3,25 +3,23 @@
 #include "timer.hpp"
 #include "drawer.hpp"
 
-#include <NvInfer.h>
-
+#include <yaml-cpp/yaml.h>
+#include <filesystem>
 #include <iostream>
 #include <fstream>
+#include <format>
 
 using namespace std;
 
-const string assets_root = "/home/alper/projects/vision-engine/assets/";
+int main(int argc, char** argv)    
+{       
+    std::filesystem::path exe_path = std::filesystem::absolute(argv[0]);
+    std::filesystem::path config_path = exe_path.parent_path() / "config/config.yaml";
 
-const string video_name = "video-image/traffic3.mp4";
-const string image_name = "video-image/highway.jpg";
-const string model_name = "models/yolov8n.plan";
+    YAML::Node config = YAML::LoadFile(config_path.string());
+    std::string video_path = config["assets"]["demo_video"].as<string>();
+    std::string model_path = config["assets"]["model_path"].as<string>();
 
-const string video_path = assets_root + video_name;
-const string image_path = assets_root + image_name;
-const string model_path = assets_root + model_name;
-
-int main()    
-{    
     cv::VideoCapture cap(video_path);
     if (!cap.isOpened())
     {
@@ -37,14 +35,16 @@ int main()
         if (frame.empty()) break;
 
         auto start = timer::now();
-
         vector<Box> boxes = nn.infer(frame);
-        
         auto end = timer::now();
-
-        printTime("total inference time", start, end);
-
-        drawBoxes(frame, boxes);
+        printTime("Inference time", start, end);
+        
+        for (auto &box : boxes)
+        {
+            string s = std::format("Class: {}, Conf: {}", box.class_id_, box.conf_score_);
+            drawBox(frame, box, s);
+        }
+        
         cv::imshow("Detection", frame);
         if (cv::waitKey(1) == 'q') break;
     }

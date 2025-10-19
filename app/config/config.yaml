@@ -1,0 +1,16 @@
+assets:
+  demo_image: "assets/video-image/highway.jpg"
+  demo_video: "assets/video-image/traffic3.mp4"
+  model_path: "assets/models/yolov8n.plan"
+
+ui:
+  width: 800
+  height: 600
+
+yolo:
+  class_num: 80
+  nms_threshold: 0.45
+  conf_thresold: 0.25
+  
+tracker:
+  age_limit: 10

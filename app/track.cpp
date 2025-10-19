@@ -1,31 +1,23 @@
 #include "trt_engine.hpp"
-#include "utils.hpp"
-#include "yolov8.hpp"
-#include "sort_tracker.hpp"
+#include "yolo_detector.hpp"
+#include "timer.hpp"
+#include "drawer.hpp"
 
-#include <NvInfer.h>
-
+#include <yaml-cpp/yaml.h>
+#include <filesystem>
 #include <iostream>
 #include <fstream>
 
 using namespace std;
 
-const string assets_root = "/home/alper/projects/vision-engine/scripts/";
-
-const string video_name = "traffic3.mp4";
-const string image_name = "highway.jpg";
-const string model_name = "yolov8n.plan";
-
-const string video_path = assets_root + video_name;
-const string image_path = assets_root + image_name;
-const string model_path = assets_root + model_name;
-
-int main()    
-{    
-    std::cout << "TensorRT version: "
-        << NV_TENSORRT_MAJOR << "."
-        << NV_TENSORRT_MINOR << "."
-        << NV_TENSORRT_PATCH << std::endl;
+int main(int argc, char** argv)    
+{       
+    std::filesystem::path exe_path = std::filesystem::absolute(argv[0]);
+    std::filesystem::path config_path = exe_path.parent_path() / "config/config.yaml";
+    std::cout << "hi" << config_path;
+    YAML::Node config = YAML::LoadFile(config_path.string());
+    std::string video_path = config["assets"]["demo_video"].as<string>();
+    std::string model_path = config["assets"]["model_path"].as<string>();
 
     cv::VideoCapture cap(video_path);
     if (!cap.isOpened())

@@ -2,14 +2,16 @@
     "version": 3,
     "configurePresets": [
         {
-            "name": "linux-debug",
-            "displayName": "Linux Debug",
+            "name": "genel-linux",
+            "displayName": "Genel Linux",
             "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "installDir": "${sourceDir}/out/install/${presetName}",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_INSTALL_RPATH_USE_LINK_PATH": "TRUE",
+                "CMAKE_BUILD_WITH_INSTALL_RPATH": "TRUE"
             },
             "condition": {
                 "type": "equals",
@@ -18,22 +20,61 @@
             }
         },
         {
+            "name": "linux-debug",
+            "displayName": "Linux Debug",
+            "inherits": "genel-linux",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
             "name": "linux-release",
             "displayName": "Linux Release",
-            "inherits": "linux-debug",
+            "inherits": "genel-linux",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "Custom configure preset",
+            "displayName": "Custom configure preset",
+            "description": "Sets Ninja generator, build and install directory",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
             }
         }
     ],
     "buildPresets": [
         {
-            "name": "linux-debug",
-            "configurePreset": "linux-debug"
+            "name": "yolo-debug",
+            "configurePreset": "linux-debug",
+            "targets": [
+                "yolo"
+            ]
         },
         {
-            "name": "linux-release",
-            "configurePreset": "linux-release"
+            "name": "yolo",
+            "configurePreset": "linux-release",
+            "targets": [
+                "yolo"
+            ]
+        },
+        {
+            "name": "sort-debug",
+            "configurePreset": "linux-debug",
+            "targets": [
+                "sort"
+            ]
+        },
+        {
+            "name": "sort",
+            "configurePreset": "linux-release",
+            "targets": [
+                "sort"
+            ]
         }
     ]
 }
