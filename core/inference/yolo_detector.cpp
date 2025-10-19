@@ -4,7 +4,7 @@ Yolov8::Yolov8(const std::string &path, std::unique_ptr<IEngine> engine) : engin
 {
     engine_->initialize(path);
     output_size_ = engine_->output_size();
-    input_size_ = engine_->input_size(); 
+    input_size_ = engine_->input_size();
 }
 
 Yolov8::~Yolov8() {}
@@ -55,13 +55,14 @@ std::vector<Box> Yolov8::postprocess(const cv::Mat &yolo_output, letterbox_t &le
     int max_id = 0;
     float max_score = 0.0f;
 
-    float* output_ptr = yolo_outputT.ptr<float>();
+    float *__restrict output_ptr = yolo_outputT.ptr<float>();
     for (int i = 0; i < 8400; ++i)
     {
+        int offset = 84 * i;
         valid = false;
         for (int j = 4; j < 84; ++j)
         {
-            float score = yolo_outputT.at<float>(i, j);
+            float score = output_ptr[offset + j];
             if (score > kConfThreshold)
             {
                 max_score = score;
@@ -72,10 +73,10 @@ std::vector<Box> Yolov8::postprocess(const cv::Mat &yolo_output, letterbox_t &le
 
         if (valid)
         {
-            float x = yolo_outputT.at<float>(i, 0) * 640.0f - letter.x_pad;
-            float y = yolo_outputT.at<float>(i, 1) * 640.0f - letter.y_pad;
-            float w = yolo_outputT.at<float>(i, 2) * 640.0f;
-            float h = yolo_outputT.at<float>(i, 3) * 640.0f;
+            float x = output_ptr[offset] * 640.0f - letter.x_pad;
+            float y = output_ptr[offset + 1] * 640.0f - letter.y_pad;
+            float w = output_ptr[offset + 2] * 640.0f;
+            float h = output_ptr[offset + 3] * 640.0f;
 
             int x1 = clamp(static_cast<int>((x - w / 2.0f) / letter.scale), 0, image_w);
             int y1 = clamp(static_cast<int>((y - h / 2.0f) / letter.scale), 0, image_h);
