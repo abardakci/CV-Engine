@@ -36,10 +36,10 @@ def build_trt(onnx_file_path, engine_output_path):
     print(f"Engine saved to {engine_output_path}")
     return serialized_engine
 
-
 # Kullanım örneği
 if __name__ == "__main__":
-    name = "yolov8n"
-    onnx_name = name + ".onnx"
-    plan_name = name + ".plan"
-    build_trt(onnx_name, plan_name)
+    print(trt.__version__)
+    # name = "yolov8n"
+    # onnx_name = name + ".onnx"
+    # plan_name = name + ".plan"
+    # build_trt(onnx_name, plan_name)

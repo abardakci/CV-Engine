@@ -1,0 +1,9 @@
+.vscode*
+assets*
+build*
+*.png
+*.jpg
+*.plan
+*.onnx
+.vs*
+out*

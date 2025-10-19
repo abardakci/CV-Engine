@@ -1,17 +1,15 @@
 #pragma once
 
 #include <NvInfer.h>
-#include <NvOnnxParser.h>
-#include <NvOnnxConfig.h>
-#include "cuda_runtime.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include "file_io.hpp"
 
-#include "utils.hpp"
+#include "cuda_runtime.h"
 
 class Yolov8; // forward declaration
 
@@ -45,3 +43,13 @@ private:
     
     friend class Yolov8;
 };
+
+// Cuda error check macro
+#define CUDA_CHECK(call) { \
+    cudaError_t err = call; \
+    if (err != cudaSuccess) { \
+        std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__ << ": " \
+                  << cudaGetErrorString(err) << std::endl; \
+        exit(EXIT_FAILURE); \
+    } \
+}

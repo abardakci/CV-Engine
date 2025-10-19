@@ -3,12 +3,14 @@
 #include "yolov8.hpp"
 #include "sort_tracker.hpp"
 
+#include <NvInfer.h>
+
 #include <iostream>
 #include <fstream>
 
 using namespace std;
 
-const string assets_root = "/home/alper/code-repo/vision-engine/assets/";
+const string assets_root = "/home/alper/projects/vision-engine/scripts/";
 
 const string video_name = "traffic3.mp4";
 const string image_name = "highway.jpg";
@@ -20,6 +22,11 @@ const string model_path = assets_root + model_name;
 
 int main()    
 {    
+    std::cout << "TensorRT version: "
+        << NV_TENSORRT_MAJOR << "."
+        << NV_TENSORRT_MINOR << "."
+        << NV_TENSORRT_PATCH << std::endl;
+
     cv::VideoCapture cap(video_path);
     if (!cap.isOpened())
     {

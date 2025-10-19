@@ -1,11 +1,8 @@
 #pragma once
 
-#include <iostream>
+#include <vector>
 #include <opencv2/opencv.hpp>
-
-#include "utils.hpp"
-#include "yolov8.hpp"
-#include "cv_types.hpp"
+#include "types.hpp"
 
 static constexpr int num_states_kf = 4;
 static constexpr int num_measures_kf = 2;
