@@ -28,13 +28,13 @@ include_directories(/usr/local/cuda-12.8/targets/x86_64-linux/include/)
 # Subprojects
 # ----------------------------------------
 
-add_subdirectory(core/common)     # core_common
-add_subdirectory(core/cv_impl)    # core_cv
-add_subdirectory(core/algorithms) # core_algo
-add_subdirectory(core/nn_backend) # core_engine
-
-# add_subdirectory(core/tracking) # core_tracker
-add_subdirectory(core/inference)  # core_infer
+add_subdirectory(core/common)      # core_common
+add_subdirectory(core/cv_wrapper)  # core_cv
+add_subdirectory(core/algorithms)  # core_algorithms
+add_subdirectory(core/trt_backend) # core_trt_backend
+add_subdirectory(core/inference)   # core_infer
+add_subdirectory(core/tracker)     # core_tracker
+add_subdirectory(core/interfaces)  # core_interfaces
 
 # ----------------------------------------
 # Executable target: Object Detector
@@ -43,19 +43,12 @@ add_executable(yolo app/detect.cpp)
 
 target_link_libraries(yolo PUBLIC
     core_common
+    core_interfaces
     core_cv
-    core_algo
+    core_algorithms
     core_infer
-    core_engine
-    ${OpenCV_LIBS}
-    CUDA::cudart
-    ${TRT_LIBS}
+    core_trt_backend
     yaml-cpp
-)
-
-target_include_directories(yolo PRIVATE
-    ${OpenCV_INCLUDE_DIRS}
-    ${TRT_INCLUDES}
 )
 
 # Install executable
@@ -64,21 +57,22 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/config DESTINATION ${CMAKE_SOURCE_DIR}
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/assets DESTINATION ${CMAKE_SOURCE_DIR}/install)
 
 # ----------------------------------------
-# Executable target: Object Tracker
+# Executable target: SORT Tracker
 # ----------------------------------------
-# add_executable(Tracker app/track.cpp)
+add_executable(sort_tracker app/track.cpp)
 
-# target_link_libraries(Tracker PUBLIC
-#     core_common
-#     core_cv
-#     core_algo
-#     core_tracker
-#     ${OpenCV_LIBS}
-#     CUDA::cudart
-#     ${TRT_LIBS}
-# )
+target_link_libraries(sort_tracker PUBLIC
+    core_common
+    core_interfaces
+    core_cv
+    core_algorithms
+    core_infer
+    core_trt_backend
+    core_tracker
+    yaml-cpp
+)
 
-# target_include_directories(Tracker PRIVATE
-#     ${OpenCV_INCLUDE_DIRS}
-#     ${TRT_INCLUDES}
-# )
+# Install executable
+install(TARGETS sort_tracker RUNTIME             DESTINATION ${CMAKE_SOURCE_DIR}/install)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/config DESTINATION ${CMAKE_SOURCE_DIR}/install)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/assets DESTINATION ${CMAKE_SOURCE_DIR}/install)

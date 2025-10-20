@@ -46,6 +46,7 @@ cv::Mat Yolov8::preprocess(const cv::Mat &input, letterbox_t &letter)
 std::vector<Box> Yolov8::postprocess(const cv::Mat &yolo_output, letterbox_t &letter, int image_h, int image_w)
 {
     std::vector<Box> output_boxes;
+    output_boxes.reserve(100);
 
     cv::Mat yolo_outputT;
     cv::transpose(yolo_output, yolo_outputT);

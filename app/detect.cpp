@@ -18,7 +18,7 @@ int main(int argc, char** argv)
 
     YAML::Node config = YAML::LoadFile(config_path.string());
     std::string video_path = config["assets"]["demo_video"].as<string>();
-    std::string model_path = config["assets"]["model_path"].as<string>();
+    std::string engine_path = config["yolo"]["engine_path"].as<string>();
 
     cv::VideoCapture cap(video_path);
     if (!cap.isOpened())
@@ -27,7 +27,7 @@ int main(int argc, char** argv)
         return -1;
     }
     auto trt = std::make_unique<TrtEngine>();    
-    Yolov8 nn(model_path, std::move(trt));
+    Yolov8 nn(engine_path, std::move(trt));
 
     cv::Mat frame;
     while (cap.read(frame))
@@ -41,14 +41,14 @@ int main(int argc, char** argv)
         auto end = timer::now();
         printTime("Inference time", start, end);
         
-        for (auto &box : boxes)
-        {
-            string s = std::format("Class: {}, Conf: {}", box.class_id_, box.conf_score_);
-            drawBox(frame, box, s);
-        }
+        // for (auto &box : boxes)
+        // {
+        //     string s = std::format("Class: {}, Conf: {}", box.class_id_, box.conf_score_);
+        //     drawBox(frame, box, s);
+        // }
         
-        cv::imshow("Detection", frame);
-        if (cv::waitKey(1) == 'q') break;
+        // cv::imshow("Detection", frame);
+        // if (cv::waitKey(1) == 'q') break;
     }
 
     cap.release();

@@ -2,12 +2,15 @@
 
 #include <vector>
 #include <opencv2/opencv.hpp>
+
 #include "types.hpp"
+#include "kalman_interface.hpp"
+#include "hungarian.hpp"
 
 static constexpr int num_states_kf = 4;
 static constexpr int num_measures_kf = 2;
 
-class Yolov8;
+class Yolov8; // forward declaration
 
 class Tracker
 {

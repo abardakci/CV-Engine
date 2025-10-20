@@ -1,5 +1,23 @@
 #include "hungarian.hpp"
 
+cv::Mat computeCostMatrix(const std::vector<Track>& tracks, const std::vector<Box>& detects)
+{
+    int w = detects.size();
+    int h = tracks.size();
+
+    cv::Mat cost_mat(cv::Size(w, h), CV_32F);
+
+    for (int i = 0; i < h; ++i)
+    {
+        for (int j = 0; j < w; ++j)
+        {
+            cost_mat.at<float>(i, j) = euclidianDistance(detects[j].xywh_.x, detects[j].xywh_.y, tracks[i].getX(), tracks[i].getY());
+        }
+    }
+
+    return cost_mat;
+}
+
 // Hungarian Algorithm
 std::vector<int> hungarian(cv::Mat& cost_matrix) 
 {

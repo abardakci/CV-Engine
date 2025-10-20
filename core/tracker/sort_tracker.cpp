@@ -1,9 +1,4 @@
 #include "sort_tracker.hpp"
-#include "opencv_kalman.hpp"
-
-// ---------------------------------------
-// Tracker Class Implemntation
-// ---------------------------------------
 
 Tracker::Tracker() {}
 Tracker::~Tracker() {}
@@ -67,7 +62,7 @@ void Tracker::SORT(std::vector<Box>& detects)
         {
             if (i < cost_mat.rows && label < cost_mat.cols && cost_mat.at<float>(i, label) <= threshold)
             {
-                tracks_[i].correction(detects[label]);
+                tracks_[i].kf_->correct(detects[label].xywh_.x, detects[label].xywh_.y);
                 used_detections[label] = true;
             }
             else
@@ -92,6 +87,6 @@ void Tracker::SORT(std::vector<Box>& detects)
         {
             addNewTrack(detects[i]);
         }
-    }       
+    }
 
 }
