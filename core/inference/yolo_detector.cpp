@@ -3,6 +3,8 @@
 Yolov8::Yolov8(const std::string &path, std::unique_ptr<IEngine> engine) : engine_(std::move(engine))
 {
     engine_->initialize(path);
+    input_size_ = 640*640*3*sizeof(float);
+    output_size_ = 84*8400*sizeof(float);
 }
 
 Yolov8::~Yolov8() {}
@@ -21,7 +23,11 @@ std::vector<Box> Yolov8::infer(const cv::Mat &input)
 
     std::vector<float> output(output_size_);
     outputs.push_back(output.data());
+
+    auto start = timer::now();
     engine_->infer(inputs, outputs);
+    auto end = timer::now();
+    printTime("TrtInfer: ", start, end);
     
     std::vector<Box> detections = postprocess(cv::Mat(kClassNum + 4, 8400, CV_32F, output.data()), letter, input.rows, input.cols);
     nms(detections, kNmsThreshold, false);

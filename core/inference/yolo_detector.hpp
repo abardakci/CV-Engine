@@ -7,6 +7,7 @@
 #include "engine_interface.hpp"
 #include "types.hpp"
 #include "postprocess.hpp"
+#include "timer.hpp"
 
 class Yolov8
 {

@@ -49,31 +49,17 @@
     ],
     "buildPresets": [
         {
-            "name": "yolo-debug",
+            "name": "build-debug",
             "configurePreset": "debug",
             "targets": [
                 "yolo"
             ]
         },
         {
-            "name": "yolo",
+            "name": "build-release",
             "configurePreset": "release",
             "targets": [
                 "yolo"
-            ]
-        },
-        {
-            "name": "sort-debug",
-            "configurePreset": "debug",
-            "targets": [
-                "sort_tracker"
-            ]
-        },
-        {
-            "name": "sort",
-            "configurePreset": "release",
-            "targets": [
-                "sort_tracker"
             ]
         }
     ]

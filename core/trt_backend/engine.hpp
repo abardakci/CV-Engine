@@ -1,7 +1,7 @@
 #pragma once
 
 #include <NvInfer.h>
-#include "cuda_runtime.h"
+#include "cuda_runtime_api.h"
 
 #include <iostream>
 #include <fstream>
@@ -32,9 +32,15 @@ private:
     nvinfer1::ICudaEngine* engine_;
     nvinfer1::IExecutionContext* ctx_;
 
+    int n_input_;
+    int n_output_;
     std::vector<std::string> input_names_;
     std::vector<std::string> output_names_;
     std::vector<nvinfer1::Dims> input_shapes_;
     std::vector<nvinfer1::Dims> output_shapes_;
+    std::vector<float*> d_input_buffers_;
+    std::vector<float*> d_output_buffers_;
+    std::vector<size_t> input_sizes_;
+    std::vector<size_t> output_sizes_;
 
 };

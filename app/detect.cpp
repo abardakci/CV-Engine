@@ -1,4 +1,4 @@
-#include "trt_engine.hpp"
+#include "engine.hpp"
 #include "yolo_detector.hpp"
 #include "timer.hpp"
 #include "drawer.hpp"
@@ -13,12 +13,14 @@ using namespace std;
 
 int main(int argc, char** argv)    
 {       
-    std::filesystem::path exe_path = std::filesystem::absolute(argv[0]);
-    std::filesystem::path config_path = exe_path.parent_path() / "config/config.yaml";
+    // std::filesystem::path exe_path = std::filesystem::absolute(argv[0]);
+    // std::filesystem::path config_path = exe_path.parent_path() / "config/config.yaml";
 
-    YAML::Node config = YAML::LoadFile(config_path.string());
-    std::string video_path = config["assets"]["demo_video"].as<string>();
-    std::string engine_path = config["yolo"]["engine_path"].as<string>();
+    // YAML::Node config = YAML::LoadFile(config_path.string());
+    // std::string video_path = config["assets"]["demo_video"].as<string>();
+    // std::string engine_path = config["yolo"]["engine_path"].as<string>();
+    std::string video_path  = "/home/alper/projects/vision_engine/install/assets/video-image/traffic3.mp4";
+    std::string engine_path = "/home/alper/projects/vision_engine/install/assets/models/yolov8n.plan";
 
     cv::VideoCapture cap(video_path);
     if (!cap.isOpened())
@@ -26,6 +28,7 @@ int main(int argc, char** argv)
         std::cerr << "Failed to open video: " << video_path << std::endl;
         return -1;
     }
+
     auto trt = std::make_unique<TrtEngine>();    
     Yolov8 nn(engine_path, std::move(trt));
 
