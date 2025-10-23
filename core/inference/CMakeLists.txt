@@ -6,7 +6,7 @@ add_library(core_infer STATIC
 )
 
 target_include_directories(core_infer PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_include_directories(core_infer PRIVATE 

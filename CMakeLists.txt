@@ -42,14 +42,19 @@ add_subdirectory(core/interfaces)  # core_interfaces
 add_executable(yolo app/detect.cpp)
 
 target_link_libraries(yolo PUBLIC
+    CUDA::cudart
+    ${TRT_LIBS}
+    ${OpenCV_LIBS}
     core_common
     core_interfaces
     core_cv
     core_algorithms
-    core_infer
     core_trt_backend
+    core_infer
     yaml-cpp
 )
+
+target_include_directories(yolo PUBLIC ${OpenCV_INCLUDE_DIRS} ${TRT_INCLUDES})
 
 # Install executable
 install(TARGETS yolo RUNTIME                     DESTINATION ${CMAKE_SOURCE_DIR}/install)
@@ -59,20 +64,25 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/assets DESTINATION ${CMAKE_SOURCE_DIR}
 # ----------------------------------------
 # Executable target: SORT Tracker
 # ----------------------------------------
-add_executable(sort_tracker app/track.cpp)
+# add_executable(sort_tracker app/track.cpp)
 
-target_link_libraries(sort_tracker PUBLIC
-    core_common
-    core_interfaces
-    core_cv
-    core_algorithms
-    core_infer
-    core_trt_backend
-    core_tracker
-    yaml-cpp
-)
+# target_link_libraries(yolo PUBLIC
+#     CUDA::cudart
+#     ${TRT_LIBS}
+#     ${OpenCV_LIBS}
+#     core_common
+#     core_interfaces
+#     core_cv
+#     core_algorithms
+#     core_trt_backend
+#     core_infer
+#     core_tracker
+#     yaml-cpp
+# )
 
-# Install executable
-install(TARGETS sort_tracker RUNTIME             DESTINATION ${CMAKE_SOURCE_DIR}/install)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/config DESTINATION ${CMAKE_SOURCE_DIR}/install)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/assets DESTINATION ${CMAKE_SOURCE_DIR}/install)
+# target_include_directories(sort_tracker PUBLIC ${OpenCV_INCLUDE_DIRS} ${TRT_INCLUDES})
+
+# # Install executable
+# install(TARGETS sort_tracker RUNTIME             DESTINATION ${CMAKE_SOURCE_DIR}/install)
+# install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/config DESTINATION ${CMAKE_SOURCE_DIR}/install)
+# install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/assets DESTINATION ${CMAKE_SOURCE_DIR}/install)

@@ -3,8 +3,6 @@
 Yolov8::Yolov8(const std::string &path, std::unique_ptr<IEngine> engine) : engine_(std::move(engine))
 {
     engine_->initialize(path);
-    output_size_ = engine_->output_size();
-    input_size_ = engine_->input_size();
 }
 
 Yolov8::~Yolov8() {}
@@ -15,17 +13,19 @@ std::vector<Box> Yolov8::infer(const cv::Mat &input)
     cv::Mat input_blob = preprocess(input, letter);
 
     CV_Assert(input_blob.type() == CV_32FC1 && input_blob.isContinuous());
+    
     float *input_data = reinterpret_cast<float *>(input_blob.data);
+    std::vector<float*> inputs;
+    std::vector<float*> outputs;
+    inputs.push_back(input_data);
 
     std::vector<float> output(output_size_);
-
-    engine_->infer(input_data, output.data());
-
-    std::vector<Box> out = postprocess(cv::Mat(kClassNum + 4, 8400, CV_32F, output.data()), letter, input.rows, input.cols);
-
-    nms(out, kNmsThreshold, false);
-
-    return out;
+    outputs.push_back(output.data());
+    engine_->infer(inputs, outputs);
+    
+    std::vector<Box> detections = postprocess(cv::Mat(kClassNum + 4, 8400, CV_32F, output.data()), letter, input.rows, input.cols);
+    nms(detections, kNmsThreshold, false);
+    return detections;
 }
 
 cv::Mat Yolov8::preprocess(const cv::Mat &input, letterbox_t &letter)

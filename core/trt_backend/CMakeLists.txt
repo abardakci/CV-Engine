@@ -1,10 +1,16 @@
 add_library(core_trt_backend STATIC
-    trt_engine.cpp
-    trt_engine.hpp
+    engine.cpp
+    engine.hpp
+    helpers.cpp
+    helpers.hpp
+    logger.hpp
+)
+
+target_include_directories(core_trt_backend PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_include_directories(core_trt_backend PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
     ${TRT_INCLUDES}
 )
 

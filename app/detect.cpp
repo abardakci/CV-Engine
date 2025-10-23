@@ -41,14 +41,14 @@ int main(int argc, char** argv)
         auto end = timer::now();
         printTime("Inference time", start, end);
         
-        // for (auto &box : boxes)
-        // {
-        //     string s = std::format("Class: {}, Conf: {}", box.class_id_, box.conf_score_);
-        //     drawBox(frame, box, s);
-        // }
+        for (auto &box : boxes)
+        {
+            string s = std::format("Class: {}, Conf: {}", box.class_id_, box.conf_score_);
+            drawBox(frame, box, s);
+        }
         
-        // cv::imshow("Detection", frame);
-        // if (cv::waitKey(1) == 'q') break;
+        cv::imshow("Detection", frame);
+        if (cv::waitKey(1) == 'q') break;
     }
 
     cap.release();

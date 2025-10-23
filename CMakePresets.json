@@ -2,7 +2,7 @@
     "version": 3,
     "configurePresets": [
         {
-            "name": "genel-linux",
+            "name": "linux",
             "displayName": "Genel Linux",
             "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
@@ -20,17 +20,17 @@
             }
         },
         {
-            "name": "linux-debug",
+            "name": "debug",
             "displayName": "Linux Debug",
-            "inherits": "genel-linux",
+            "inherits": "linux",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
-            "name": "linux-release",
+            "name": "release",
             "displayName": "Linux Release",
-            "inherits": "genel-linux",
+            "inherits": "linux",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
@@ -50,30 +50,30 @@
     "buildPresets": [
         {
             "name": "yolo-debug",
-            "configurePreset": "linux-debug",
+            "configurePreset": "debug",
             "targets": [
                 "yolo"
             ]
         },
         {
             "name": "yolo",
-            "configurePreset": "linux-release",
+            "configurePreset": "release",
             "targets": [
                 "yolo"
             ]
         },
         {
             "name": "sort-debug",
-            "configurePreset": "linux-debug",
+            "configurePreset": "debug",
             "targets": [
-                "sort"
+                "sort_tracker"
             ]
         },
         {
             "name": "sort",
-            "configurePreset": "linux-release",
+            "configurePreset": "release",
             "targets": [
-                "sort"
+                "sort_tracker"
             ]
         }
     ]
