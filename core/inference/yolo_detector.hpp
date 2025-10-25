@@ -12,7 +12,7 @@
 class Yolov8
 {
 public:
-    Yolov8(const std::string &path, std::unique_ptr<IEngine> engine);
+    Yolov8(const std::string &engine_path, std::unique_ptr<IEngine> engine);
     ~Yolov8();
 
     cv::Mat preprocess(const cv::Mat &input, letterbox_t &letter);
@@ -21,10 +21,13 @@ public:
 
 private:
     std::unique_ptr<IEngine> engine_;
+    
     size_t input_size_;
     size_t output_size_;
+    
     std::array<float*, N_MAX_INPUT> input_buf_;
     std::array<float*, N_MAX_OUTPUT> output_buf_;
+
     const int kClassNum = 80;
     const float kNmsThreshold = 0.45;
     const float kConfThreshold = 0.25;

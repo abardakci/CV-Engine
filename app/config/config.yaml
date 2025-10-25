@@ -1,0 +1,3 @@
+assets:
+  video_path: /home/alper/projects/vision_engine/app/assets/video-image/traffic3.mp4
+  engine_path: /home/alper/projects/vision_engine/app/assets/models/yolov8n.plan

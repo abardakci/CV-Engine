@@ -7,4 +7,5 @@ target_include_directories(core_interfaces INTERFACE
 
 target_link_libraries(core_interfaces INTERFACE
     core_common
+    core_cv
 )

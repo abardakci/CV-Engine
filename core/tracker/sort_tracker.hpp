@@ -5,17 +5,16 @@
 
 #include "types.hpp"
 #include "kalman_interface.hpp"
+#include "kalman_factory.hpp"
 #include "hungarian.hpp"
 
 static constexpr int num_states_kf = 4;
 static constexpr int num_measures_kf = 2;
 
-class Yolov8; // forward declaration
-
 class Tracker
 {
 public:
-    Tracker();
+    Tracker(KalmanType kalman_type);
     ~Tracker();
 
     void estimateAllTracks();
@@ -26,6 +25,7 @@ public:
     std::vector<Track> tracks_;
 
 private:
+    KalmanType kf_type_;
     long highest_id_ = 0;
 
 };

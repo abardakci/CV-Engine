@@ -1,9 +1,9 @@
 #include "yolo_detector.hpp"
 
-Yolov8::Yolov8(const std::string &path, std::unique_ptr<IEngine> engine)
+Yolov8::Yolov8(const std::string &engine_path, std::unique_ptr<IEngine> engine)
     : engine_(std::move(engine)), input_buf_{nullptr}, output_buf_{nullptr}
 {
-    engine_->initialize(path);
+    engine_->init(engine_path);
     input_size_ = 640 * 640 * 3;
     output_size_ = 84 * 8400;
     input_buf_[0] = new float[input_size_];

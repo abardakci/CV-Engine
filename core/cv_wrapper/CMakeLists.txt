@@ -1,6 +1,6 @@
 add_library(core_cv STATIC
-    opencv_kalman.cpp
-    opencv_kalman.hpp
+    kf_wrapper.cpp
+    kf_wrapper.hpp
     drawer.cpp
     drawer.hpp
 )

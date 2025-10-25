@@ -1,5 +1,7 @@
-#include "trt_engine.hpp"
+#include "engine.hpp"
 #include "yolo_detector.hpp"
+#include "sort_tracker.hpp"
+#include "kf_wrapper.hpp"
 #include "timer.hpp"
 #include "drawer.hpp"
 
@@ -12,12 +14,25 @@ using namespace std;
 
 int main(int argc, char** argv)    
 {       
-    std::filesystem::path exe_path = std::filesystem::absolute(argv[0]);
-    std::filesystem::path config_path = exe_path.parent_path() / "config/config.yaml";
+    // exe path
+    namespace fs = std::filesystem;
+    fs::path exe_path;
+    try {
+        exe_path = fs::canonical(argv[0]);  // tam path
+    } catch (...) {
+        exe_path = fs::current_path() / argv[0];
+    }
 
+    // binary dizini (out/install/debug/bin)
+    fs::path exe_dir = exe_path.parent_path();
+
+    // config dosyası konumu (../share/config/config.yaml)
+    fs::path config_path = exe_dir / "../share/config/config.yaml";
+    config_path = fs::weakly_canonical(config_path); // normalize
+    
     YAML::Node config = YAML::LoadFile(config_path.string());
-    std::string video_path = config["assets"]["demo_video"].as<string>();
-    std::string model_path = config["assets"]["model_path"].as<string>();
+    std::string video_path = config["assets"]["video_path"].as<string>();
+    std::string engine_path = config["assets"]["engine_path"].as<string>();
 
     cv::VideoCapture cap(video_path);
     if (!cap.isOpened())
@@ -26,7 +41,9 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    Yolov8 nn(model_path);
+    auto trt = std::make_unique<TrtEngine>();    
+    Yolov8 nn(engine_path, std::move(trt));
+    Tracker sort(KalmanType::KFWrapper);
 
     cv::Mat frame;
     while (cap.read(frame))
@@ -37,18 +54,18 @@ int main(int argc, char** argv)
 
         vector<Box> boxes = nn.infer(frame);
         
-        tracker.SORT(boxes);
+        sort.SORT(boxes);
 
-        for (auto& track : tracker.tracks_)
+        for (const auto& track : sort.tracks_)
         {
             if (track.age_ == 0)
-                drawBox(frame, track);
+                drawBox(frame, track.bbox_);
         }
 
-        std::cout << "Active tracks: " << tracker.tracks_.size() << std::endl;
+        std::cout << "Active tracks: " << sort.tracks_.size() << std::endl;
 
         auto end = timer::now();
-        printTime("total tracker time", start, end);
+        print_time("total tracker time", start, end);
 
         cv::imshow("Tracker", frame);
         if (cv::waitKey(1) == 'q') break;

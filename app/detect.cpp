@@ -13,12 +13,25 @@ using namespace std;
 
 int main(int argc, char** argv)    
 {       
-    std::filesystem::path exe_path = std::filesystem::absolute(argv[0]);
-    std::filesystem::path config_path = exe_path.parent_path() / "config/config.yaml";
+    // exe path
+    namespace fs = std::filesystem;
+    fs::path exe_path;
+    try {
+        exe_path = fs::canonical(argv[0]);  // tam path
+    } catch (...) {
+        exe_path = fs::current_path() / argv[0];
+    }
 
+    // binary dizini (out/install/debug/bin)
+    fs::path exe_dir = exe_path.parent_path();
+
+    // config dosyası konumu (../share/config/config.yaml)
+    fs::path config_path = exe_dir / "../share/config/config.yaml";
+    config_path = fs::weakly_canonical(config_path); // normalize
+    
     YAML::Node config = YAML::LoadFile(config_path.string());
-    std::string video_path = config["assets"]["demo_video"].as<string>();
-    std::string engine_path = config["yolo"]["engine_path"].as<string>();
+    std::string video_path = config["assets"]["video_path"].as<string>();
+    std::string engine_path = config["assets"]["engine_path"].as<string>();
 
     cv::VideoCapture cap(video_path);
     if (!cap.isOpened())
@@ -40,7 +53,7 @@ int main(int argc, char** argv)
         vector<Box> boxes = nn.infer(frame);
         
         auto end = timer::now();
-        printTime("Inference time", start, end);
+        print_time("Inference time", start, end);
         
         for (auto &box : boxes)
         {

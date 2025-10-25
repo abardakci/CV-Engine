@@ -1,11 +1,10 @@
 #include "types.hpp"
-#include "../interfaces/kalman_interface.hpp"
 
 // ---------------------------------------
 // Box Class Implementation
 // ---------------------------------------
 
-Box::Box(int x1, int y1, int x2, int y2, int class_id, float conf_score)
+Box::Box(float x1, float y1, float x2, float y2, int class_id, float conf_score)
 {
     xyxy_.x1 = x1;
     xyxy_.y1 = y1;
@@ -21,22 +20,21 @@ Box::Box(int x1, int y1, int x2, int y2, int class_id, float conf_score)
     conf_score_ = conf_score;
 }
 
-Box::~Box() {}
-
 // ---------------------------------------
 // Track Class Implementation
 // ---------------------------------------
 
-Track::Track(Box bbox, int track_id, std::unique_ptr<IKalmanFilter> kf) : bbox_(bbox), kf_(std::move(kf)), track_id_(track_id)
+Track::Track(Box bbox, int track_id, std::unique_ptr<IKalmanFilter> kf)
+    : bbox_(bbox), kf_(std::move(kf)), track_id_(track_id), age_(0)
 {
-    kf_->init(bbox.xywh_.x, bbox.xywh_.y);
+    std::vector<float> current_state{bbox_.xywh_.x, bbox_.xywh_.y};
+    kf_->init(current_state);
 }
 
-Track::~Track() {}
-
-void Track::update(Box& true_box)
+void Track::update(Box &true_bbox)
 {
-    kf_->correct(true_box.xywh_.x, true_box.xywh_.y);
-    bbox_ = std::move(true_box);
+    std::vector<float> measurement{true_bbox.xywh_.x, true_bbox.xywh_.y};
+    kf_->correct(measurement);
+    bbox_ = std::move(true_bbox);
     age_ = 0;
 }

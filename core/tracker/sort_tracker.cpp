@@ -1,11 +1,17 @@
 #include "sort_tracker.hpp"
 
-Tracker::Tracker() {}
+KalmanFactory kf_factory;
+
+Tracker::Tracker(KalmanType kalman_type)
+{
+    kf_type_ = kalman_type;
+}
+
 Tracker::~Tracker() {}
 
-void Tracker::estimateAllTracks() 
+void Tracker::estimateAllTracks()
 {
-    for (auto& track : tracks_)
+    for (auto &track : tracks_)
     {
         track.kf_->predict();
     }
@@ -18,24 +24,25 @@ void Tracker::removeOldTracks(const int age_limit)
         std::remove_if(
             tracks_.begin(),
             tracks_.end(),
-            [age_limit](const Track& t) {
+            [age_limit](const Track &t)
+            {
                 return t.age_ > age_limit;
-            }
-        ),
+            }),
         tracks_.end());
 }
 
-void Tracker::addNewTrack(Box& b)
+void Tracker::addNewTrack(Box &b)
 {
-    tracks_.emplace_back(std::move(b), ++highest_id_);
+    std::unique_ptr<IKalmanFilter> kf = kf_factory.create(kf_type_);
+    tracks_.emplace_back(std::move(b), highest_id_++, std::move(kf));
 }
 
-void Tracker::SORT(std::vector<Box>& detects)
+void Tracker::SORT(std::vector<Box> &detects)
 {
-    if (detects.size() == 0 || tracks_.size() == 0) 
+    if (detects.size() == 0 || tracks_.size() == 0)
     {
         // Unmatched detections will be created as new tracks
-        for (auto& detection : detects)
+        for (auto &detection : detects)
         {
             addNewTrack(detection);
         }
@@ -51,19 +58,22 @@ void Tracker::SORT(std::vector<Box>& detects)
 
     // Maximum weight matching assignment (hungarian algorithm)
     std::vector<int> assignments = hungarian(cost_mat);
-    
+
     std::vector<bool> used_detections(detects.size(), false);
 
-    for (int i = 0; i < assignments.size(); ++i)
+    int size = assignments.size();
+    for (int i = 0; i < size; ++i)
     {
         int label = assignments[i]; // assigned detection of ith track
 
+        // matched
         if (label != -1)
         {
             if (i < cost_mat.rows && label < cost_mat.cols && cost_mat.at<float>(i, label) <= threshold)
             {
-                tracks_[i].kf_->correct(detects[label].xywh_.x, detects[label].xywh_.y);
+                tracks_[i].kf_->correct({detects[label].xywh_.x, detects[label].xywh_.y});
                 used_detections[label] = true;
+                tracks_[i].age_ = 0;
             }
             else
             {
@@ -71,8 +81,9 @@ void Tracker::SORT(std::vector<Box>& detects)
                     tracks_[i].age_ += 1;
             }
         }
+        // unmatched
         else
-        { 
+        {
             tracks_[i].age_ += 1;
         }
     }
@@ -80,13 +91,13 @@ void Tracker::SORT(std::vector<Box>& detects)
     constexpr int age_threshold = 10;
     removeOldTracks(age_threshold);
 
-    // For unmatched detections, create new tracks 
-    for (int i = 0; i < detects.size(); ++i)
+    // For unmatched detections, create new tracks
+    size = detects.size(); 
+    for (int i = 0; i < size; ++i)
     {
         if (!used_detections[i])
         {
             addNewTrack(detects[i]);
         }
     }
-
 }

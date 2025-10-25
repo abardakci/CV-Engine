@@ -12,32 +12,32 @@ TrtEngine::~TrtEngine()
         cudaFree(d_output_buffers_[i]);
 
     cudaStreamDestroy(stream_);
-    delete ctx_;
-    delete engine_;
-    delete runtime_;
 }
 
-void TrtEngine::initialize(const std::string &path)
+void TrtEngine::init(const std::string &path)
 {
-    runtime_ = createInferRuntime(gLogger);
+    runtime_.reset(createInferRuntime(gLogger));
     buildEngine(path);
 
-    ctx_ = engine_->createExecutionContext();
+    ctx_.reset(engine_->createExecutionContext());
+    for (int i = 0; i < engine_->getNbIOTensors(); ++i)
+    {
+        const char *name = engine_->getIOTensorName(i);
+        TensorIOMode mode = engine_->getTensorIOMode(name);
+        if (mode == TensorIOMode::kINPUT)
+            ++n_input_;
+        else if (mode == TensorIOMode::kOUTPUT)
+            ++n_output_;
+    }
+
+    if (n_input_ > N_MAX_INPUT || n_output_ > N_MAX_OUTPUT)
+        std::cout << std::format("[ERROR] Not enough io buffers!");
 
     setIOTensorNames();
-    n_input_ = input_names_.size();
-    n_output_ = output_names_.size();
-    d_input_buffers_.resize(n_input_);
-    d_output_buffers_.resize(n_output_);
-    input_sizes_.resize(n_input_);
-    output_sizes_.resize(n_output_);
-    input_shapes_.resize(n_input_);
-    output_shapes_.resize(n_output_);
 
     // fix
     input_shapes_[0] = nvinfer1::Dims4(1, 3, 640, 640);
     output_shapes_[0] = nvinfer1::Dims2(84, 8400);
-    //
 
     for (int i = 0; i < n_input_; i++)
     {
@@ -66,14 +66,22 @@ void TrtEngine::initialize(const std::string &path)
 void TrtEngine::setIOTensorNames()
 {
     int num_io = engine_->getNbIOTensors();
+    int input_idx = 0;
+    int output_idx = 0;
     for (int i = 0; i < num_io; ++i)
     {
         const char *name = engine_->getIOTensorName(i);
         auto mode = engine_->getTensorIOMode(name);
         if (mode == nvinfer1::TensorIOMode::kINPUT)
-            input_names_.push_back(name);
+        {
+            input_names_[input_idx] = name;
+            ++input_idx;
+        } 
         else if (mode == nvinfer1::TensorIOMode::kOUTPUT)
-            output_names_.push_back(name);
+        {
+            output_names_[output_idx] = name;
+            ++output_idx;
+        }
     }
 }
 
@@ -82,7 +90,7 @@ void TrtEngine::buildEngine(const std::string &model_path)
     std::vector<char> model_bin;
     loadBinaryFromFile(model_path, model_bin);
 
-    engine_ = runtime_->deserializeCudaEngine(model_bin.data(), model_bin.size());
+    engine_.reset(runtime_->deserializeCudaEngine(model_bin.data(), model_bin.size()));
 }
 
 void TrtEngine::setTensorShape(const std::string &tensor_name, const std::vector<int> &default_shape)
@@ -112,7 +120,7 @@ void TrtEngine::setTensorShape(const std::string &tensor_name, const std::vector
     }
 }
 
-int TrtEngine::infer(std::array<float *, N_MAX_INPUT> inputs, std::array<float *, N_MAX_OUTPUT> outputs)
+bool TrtEngine::infer(std::array<float *, N_MAX_INPUT> inputs, std::array<float *, N_MAX_OUTPUT> outputs)
 {
     bool success;
     for (int i = 0; i < n_input_; i++)
@@ -125,7 +133,7 @@ int TrtEngine::infer(std::array<float *, N_MAX_INPUT> inputs, std::array<float *
     if (!success)
     {
         std::cout << std::format("[ERROR] enqueueV3 not succeed!");
-        return -1;
+        return false;
     }
 
     for (int i = 0; i < n_output_; i++)
@@ -137,5 +145,5 @@ int TrtEngine::infer(std::array<float *, N_MAX_INPUT> inputs, std::array<float *
     CUDA_CHECK(
         cudaStreamSynchronize(stream_));
 
-    return 0;
+    return true;
 }
