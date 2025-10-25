@@ -1,10 +1,8 @@
-add_library(core_interfaces INTERFACE
-    engine_interface.hpp
-    kalman_interface.hpp
-)
+add_library(core_interfaces INTERFACE)
 
 target_include_directories(core_interfaces INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${OpenCV_INCLUDE_DIRS}
 )
 
 target_link_libraries(core_interfaces INTERFACE

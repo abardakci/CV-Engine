@@ -22,12 +22,10 @@ set(TRT_LIBS
     /usr/lib/x86_64-linux-gnu/libnvinfer_plugin.so.10.10.0
     /usr/lib/x86_64-linux-gnu/libnvinfer_lean.so.10.10.0
 )
-include_directories(/usr/local/cuda-12.8/targets/x86_64-linux/include/)
 
 # ----------------------------------------
 # Subprojects
 # ----------------------------------------
-
 add_subdirectory(core/common)      # core_common
 add_subdirectory(core/cv_wrapper)  # core_cv
 add_subdirectory(core/algorithms)  # core_algorithms
@@ -54,35 +52,35 @@ target_link_libraries(yolo PUBLIC
     yaml-cpp
 )
 
-target_include_directories(yolo PUBLIC ${OpenCV_INCLUDE_DIRS} ${TRT_INCLUDES})
+# ----------------------------------------
+# Executable target: Object Detector
+# ----------------------------------------
+add_executable(sort_tracker app/track.cpp)
 
-# Install executable
-install(TARGETS yolo RUNTIME                     DESTINATION ${CMAKE_SOURCE_DIR}/install)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/config DESTINATION ${CMAKE_SOURCE_DIR}/install)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/assets DESTINATION ${CMAKE_SOURCE_DIR}/install)
+target_link_libraries(sort_tracker PUBLIC
+    CUDA::cudart
+    ${TRT_LIBS}
+    ${OpenCV_LIBS}
+    core_common
+    core_interfaces
+    core_cv
+    core_algorithms
+    core_trt_backend
+    core_infer
+    core_tracker
+    yaml-cpp
+)
+
+target_include_directories(sort_tracker PUBLIC ${OpenCV_INCLUDE_DIRS} ${TRT_INCLUDES})
 
 # ----------------------------------------
-# Executable target: SORT Tracker
+# Install
 # ----------------------------------------
-# add_executable(sort_tracker app/track.cpp)
+include(GNUInstallDirs)
 
-# target_link_libraries(yolo PUBLIC
-#     CUDA::cudart
-#     ${TRT_LIBS}
-#     ${OpenCV_LIBS}
-#     core_common
-#     core_interfaces
-#     core_cv
-#     core_algorithms
-#     core_trt_backend
-#     core_infer
-#     core_tracker
-#     yaml-cpp
-# )
+install(TARGETS yolo sort_tracker
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
-# target_include_directories(sort_tracker PUBLIC ${OpenCV_INCLUDE_DIRS} ${TRT_INCLUDES})
-
-# # Install executable
-# install(TARGETS sort_tracker RUNTIME             DESTINATION ${CMAKE_SOURCE_DIR}/install)
-# install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/config DESTINATION ${CMAKE_SOURCE_DIR}/install)
-# install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/assets DESTINATION ${CMAKE_SOURCE_DIR}/install)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/config
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR})

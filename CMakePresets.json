@@ -6,7 +6,6 @@
             "displayName": "Genel Linux",
             "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
-            "installDir": "${sourceDir}/out/install/${presetName}",
             "cacheVariables": {
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
@@ -49,14 +48,14 @@
     ],
     "buildPresets": [
         {
-            "name": "bdebug",
+            "name": "debug",
             "configurePreset": "debug",
             "targets": [
                 "yolo", "sort_tracker"
             ]
         },
         {
-            "name": "brelease",
+            "name": "release",
             "configurePreset": "release",
             "targets": [
                 "yolo", "sort_tracker"
