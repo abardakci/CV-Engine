@@ -8,6 +8,7 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <format>
 
 #include "file_io.hpp"
 #include "engine_interface.hpp"
@@ -19,7 +20,7 @@ class TrtEngine : public IEngine
 public:
     ~TrtEngine() override;
     void initialize(const std::string& path) override;
-    int infer(std::vector<float*> inputs, std::vector<float*> outputs) override;
+    int infer(std::array<float*, N_MAX_INPUT> inputs, std::array<float*, N_MAX_OUTPUT> outputs) override;
 
 protected:
     void buildEngine(const std::string& engine_path);

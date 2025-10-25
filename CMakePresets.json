@@ -49,17 +49,17 @@
     ],
     "buildPresets": [
         {
-            "name": "build-debug",
+            "name": "bdebug",
             "configurePreset": "debug",
             "targets": [
-                "yolo"
+                "yolo", "sort_tracker"
             ]
         },
         {
-            "name": "build-release",
+            "name": "brelease",
             "configurePreset": "release",
             "targets": [
-                "yolo"
+                "yolo", "sort_tracker"
             ]
         }
     ]

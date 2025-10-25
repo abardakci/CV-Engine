@@ -23,6 +23,8 @@ private:
     std::unique_ptr<IEngine> engine_;
     size_t input_size_;
     size_t output_size_;
+    std::array<float*, N_MAX_INPUT> input_buf_;
+    std::array<float*, N_MAX_OUTPUT> output_buf_;
     const int kClassNum = 80;
     const float kNmsThreshold = 0.45;
     const float kConfThreshold = 0.25;

@@ -1,35 +1,36 @@
 #include "yolo_detector.hpp"
 
-Yolov8::Yolov8(const std::string &path, std::unique_ptr<IEngine> engine) : engine_(std::move(engine))
+Yolov8::Yolov8(const std::string &path, std::unique_ptr<IEngine> engine)
+    : engine_(std::move(engine)), input_buf_{nullptr}, output_buf_{nullptr}
 {
     engine_->initialize(path);
-    input_size_ = 640*640*3*sizeof(float);
-    output_size_ = 84*8400*sizeof(float);
+    input_size_ = 640 * 640 * 3;
+    output_size_ = 84 * 8400;
+    input_buf_[0] = new float[input_size_];
+    output_buf_[0] = new float[output_size_];
 }
 
 Yolov8::~Yolov8() {}
 
 std::vector<Box> Yolov8::infer(const cv::Mat &input)
 {
+    // Preprocess
     letterbox_t letter = {0, 0, 1.0f};
     cv::Mat input_blob = preprocess(input, letter);
 
+    // Set input buffers
     CV_Assert(input_blob.type() == CV_32FC1 && input_blob.isContinuous());
-    
-    float *input_data = reinterpret_cast<float *>(input_blob.data);
-    std::vector<float*> inputs;
-    std::vector<float*> outputs;
-    inputs.push_back(input_data);
+    input_buf_[0] = (float *)input_blob.data;
 
-    std::vector<float> output(output_size_);
-    outputs.push_back(output.data());
+    // Inference
+    engine_->infer(input_buf_, output_buf_);
 
-    auto start = timer::now();
-    engine_->infer(inputs, outputs);
-    auto end = timer::now();
-    printTime("TrtInfer: ", start, end);
-    
-    std::vector<Box> detections = postprocess(cv::Mat(kClassNum + 4, 8400, CV_32F, output.data()), letter, input.rows, input.cols);
+    // Postprocess
+    std::vector<Box> detections = postprocess(cv::Mat(kClassNum + 4, 8400, CV_32F, output_buf_[0]),
+                                              letter,
+                                              input.rows,
+                                              input.cols);
+
     nms(detections, kNmsThreshold, false);
     return detections;
 }
@@ -40,13 +41,15 @@ cv::Mat Yolov8::preprocess(const cv::Mat &input, letterbox_t &letter)
     cv::Mat input_letter = letterbox(input, letter, 640, 640);
 
     // nhwc to nchw
-    cv::Mat input_blob = cv::dnn::blobFromImage(input_letter);
+    cv::Mat blob = cv::dnn::blobFromImage(input_letter,
+                                          1.0 / 255.0,
+                                          cv::Size(),
+                                          cv::Scalar(),
+                                          true,
+                                          false,
+                                          CV_32F);
 
-    // uchar to fp32&normalization
-    cv::Mat output;
-    input_blob.convertTo(output, CV_32F, 1.0f / 255.0f);
-
-    return output;
+    return blob;
 }
 
 std::vector<Box> Yolov8::postprocess(const cv::Mat &yolo_output, letterbox_t &letter, int image_h, int image_w)

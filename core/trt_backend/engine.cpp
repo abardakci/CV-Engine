@@ -21,9 +21,9 @@ void TrtEngine::initialize(const std::string &path)
 {
     runtime_ = createInferRuntime(gLogger);
     buildEngine(path);
-    
+
     ctx_ = engine_->createExecutionContext();
-    
+
     setIOTensorNames();
     n_input_ = input_names_.size();
     n_output_ = output_names_.size();
@@ -35,35 +35,32 @@ void TrtEngine::initialize(const std::string &path)
     output_shapes_.resize(n_output_);
 
     // fix
-    input_shapes_[0] = nvinfer1::Dims4(1,3,640,640);
-    output_shapes_[0] = nvinfer1::Dims2(84,8400);
+    input_shapes_[0] = nvinfer1::Dims4(1, 3, 640, 640);
+    output_shapes_[0] = nvinfer1::Dims2(84, 8400);
     //
 
     for (int i = 0; i < n_input_; i++)
     {
-        size_t tensor_size = calcTensorSize(input_shapes_[i]) * sizeof(float);        
+        size_t tensor_size = calcTensorSize(input_shapes_[i]) * sizeof(float);
         CUDA_CHECK(
-            cudaMalloc((void**)&d_input_buffers_[i], tensor_size)
-        );
-        
+            cudaMalloc((void **)&d_input_buffers_[i], tensor_size));
+
         ctx_->setTensorAddress(input_names_[i].c_str(), d_input_buffers_[i]);
         input_sizes_[i] = tensor_size;
     }
 
     for (int i = 0; i < n_output_; i++)
     {
-        size_t tensor_size = calcTensorSize(output_shapes_[i]) * sizeof(float);        
+        size_t tensor_size = calcTensorSize(output_shapes_[i]) * sizeof(float);
         CUDA_CHECK(
-            cudaMalloc((void**)&d_output_buffers_[i], tensor_size)
-        );
-        
+            cudaMalloc((void **)&d_output_buffers_[i], tensor_size));
+
         ctx_->setTensorAddress(output_names_[i].c_str(), d_output_buffers_[i]);
         output_sizes_[i] = tensor_size;
     }
 
     CUDA_CHECK(
-        cudaStreamCreate(&stream_)
-    );
+        cudaStreamCreate(&stream_));
 }
 
 void TrtEngine::setIOTensorNames()
@@ -71,10 +68,10 @@ void TrtEngine::setIOTensorNames()
     int num_io = engine_->getNbIOTensors();
     for (int i = 0; i < num_io; ++i)
     {
-        const char* name = engine_->getIOTensorName(i);
+        const char *name = engine_->getIOTensorName(i);
         auto mode = engine_->getTensorIOMode(name);
         if (mode == nvinfer1::TensorIOMode::kINPUT)
-            input_names_.push_back(name);    
+            input_names_.push_back(name);
         else if (mode == nvinfer1::TensorIOMode::kOUTPUT)
             output_names_.push_back(name);
     }
@@ -88,7 +85,7 @@ void TrtEngine::buildEngine(const std::string &model_path)
     engine_ = runtime_->deserializeCudaEngine(model_bin.data(), model_bin.size());
 }
 
-void TrtEngine::setTensorShape(const std::string& tensor_name, const std::vector<int>& default_shape)
+void TrtEngine::setTensorShape(const std::string &tensor_name, const std::vector<int> &default_shape)
 {
     nvinfer1::Dims dims = engine_->getTensorShape(tensor_name.c_str());
 
@@ -115,27 +112,30 @@ void TrtEngine::setTensorShape(const std::string& tensor_name, const std::vector
     }
 }
 
-int TrtEngine::infer(std::vector<float*> inputs, std::vector<float*> outputs)
+int TrtEngine::infer(std::array<float *, N_MAX_INPUT> inputs, std::array<float *, N_MAX_OUTPUT> outputs)
 {
+    bool success;
     for (int i = 0; i < n_input_; i++)
     {
         CUDA_CHECK(
-            cudaMemcpyAsync((void*)d_input_buffers_[i], (void*)inputs[i], input_sizes_[i], cudaMemcpyHostToDevice, stream_)
-        );
+            cudaMemcpyAsync((void *)d_input_buffers_[i], (void *)inputs[i], input_sizes_[i], cudaMemcpyHostToDevice, stream_));
     }
 
-    ctx_->enqueueV3(stream_);
+    success = ctx_->enqueueV3(stream_);
+    if (!success)
+    {
+        std::cout << std::format("[ERROR] enqueueV3 not succeed!");
+        return -1;
+    }
 
     for (int i = 0; i < n_output_; i++)
     {
         CUDA_CHECK(
-            cudaMemcpyAsync((void*)outputs[i], (void*)d_output_buffers_[i], output_sizes_[i], cudaMemcpyDeviceToHost, stream_)
-        );
+            cudaMemcpyAsync((void *)outputs[i], (void *)d_output_buffers_[i], output_sizes_[i], cudaMemcpyDeviceToHost, stream_));
     }
 
     CUDA_CHECK(
-        cudaStreamSynchronize(stream_)
-    );
+        cudaStreamSynchronize(stream_));
 
     return 0;
 }

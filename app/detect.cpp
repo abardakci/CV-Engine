@@ -13,14 +13,12 @@ using namespace std;
 
 int main(int argc, char** argv)    
 {       
-    // std::filesystem::path exe_path = std::filesystem::absolute(argv[0]);
-    // std::filesystem::path config_path = exe_path.parent_path() / "config/config.yaml";
+    std::filesystem::path exe_path = std::filesystem::absolute(argv[0]);
+    std::filesystem::path config_path = exe_path.parent_path() / "config/config.yaml";
 
-    // YAML::Node config = YAML::LoadFile(config_path.string());
-    // std::string video_path = config["assets"]["demo_video"].as<string>();
-    // std::string engine_path = config["yolo"]["engine_path"].as<string>();
-    std::string video_path  = "/home/alper/projects/vision_engine/install/assets/video-image/traffic3.mp4";
-    std::string engine_path = "/home/alper/projects/vision_engine/install/assets/models/yolov8n.plan";
+    YAML::Node config = YAML::LoadFile(config_path.string());
+    std::string video_path = config["assets"]["demo_video"].as<string>();
+    std::string engine_path = config["yolo"]["engine_path"].as<string>();
 
     cv::VideoCapture cap(video_path);
     if (!cap.isOpened())
