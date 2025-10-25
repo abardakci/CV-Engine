@@ -14,7 +14,7 @@ cv::Mat computeCostMatrix(const std::vector<Track>& tracks, const std::vector<Bo
             cost_mat.at<float>(i, j) = euclidianDistance(detects[j].xywh_.x, detects[j].xywh_.y, tracks[i].bbox_.xywh_.x, tracks[i].bbox_.xywh_.y);
         }
     }
-
+    
     return cost_mat;
 }
 

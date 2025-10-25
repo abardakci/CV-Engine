@@ -53,20 +53,20 @@ int main(int argc, char** argv)
         auto start = timer::now();
 
         vector<Box> boxes = nn.infer(frame);
-        
-        sort.SORT(boxes);
 
-        for (const auto& track : sort.tracks_)
-        {
-            if (track.age_ == 0)
-                drawBox(frame, track.bbox_);
-        }
+        sort.SORT(boxes);
 
         std::cout << "Active tracks: " << sort.tracks_.size() << std::endl;
 
         auto end = timer::now();
         print_time("total tracker time", start, end);
 
+        for (const auto& track : sort.tracks_)
+        {
+            if (track.age_ == 0)
+                drawBox(frame, track.bbox_);
+        }
+ 
         cv::imshow("Tracker", frame);
         if (cv::waitKey(1) == 'q') break;
     }
