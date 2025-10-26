@@ -16,4 +16,5 @@ target_link_libraries(core_tracker PRIVATE
     core_cv
     core_algorithms
     core_interfaces
+    core_factory
 )

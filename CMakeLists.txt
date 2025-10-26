@@ -33,6 +33,7 @@ add_subdirectory(core/trt_backend) # core_trt_backend
 add_subdirectory(core/inference)   # core_infer
 add_subdirectory(core/tracker)     # core_tracker
 add_subdirectory(core/interfaces)  # core_interfaces
+add_subdirectory(core/factory)
 
 # ----------------------------------------
 # Executable target: Object Detector
@@ -40,14 +41,13 @@ add_subdirectory(core/interfaces)  # core_interfaces
 add_executable(yolo app/detect.cpp)
 
 target_link_libraries(yolo PUBLIC
-    CUDA::cudart
-    ${TRT_LIBS}
     ${OpenCV_LIBS}
     core_common
     core_interfaces
     core_cv
     core_algorithms
     core_trt_backend
+    core_factory
     core_infer
     yaml-cpp
 )
@@ -58,14 +58,13 @@ target_link_libraries(yolo PUBLIC
 add_executable(sort_tracker app/track.cpp)
 
 target_link_libraries(sort_tracker PUBLIC
-    CUDA::cudart
-    ${TRT_LIBS}
     ${OpenCV_LIBS}
     core_common
     core_interfaces
     core_cv
     core_algorithms
     core_trt_backend
+    core_factory
     core_infer
     core_tracker
     yaml-cpp
