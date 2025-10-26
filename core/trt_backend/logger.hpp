@@ -2,6 +2,7 @@
 
 #include <NvInfer.h>
 #include <string>
+#include <iostream>
 
 class Logger : public nvinfer1::ILogger 
 {

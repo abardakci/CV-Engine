@@ -6,11 +6,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ----------------------------------------
-# Find external packages
-# ----------------------------------------
-find_package(OpenCV REQUIRED)
-
-# ----------------------------------------
 # Subprojects
 # ----------------------------------------
 add_subdirectory(core/common)      # core_common
@@ -21,6 +16,7 @@ add_subdirectory(core/inference)   # core_infer
 add_subdirectory(core/tracker)     # core_tracker
 add_subdirectory(core/interfaces)  # core_interfaces
 add_subdirectory(core/factory)
+add_subdirectory(core/application)
 
 # ----------------------------------------
 # Executable target: Object Detector
@@ -28,13 +24,7 @@ add_subdirectory(core/factory)
 add_executable(yolo app/detect.cpp)
 
 target_link_libraries(yolo PUBLIC
-    ${OpenCV_LIBS}
-    core_common
-    core_interfaces
-    core_cv
-    core_algorithms
-    core_factory
-    core_infer
+    core_app
 )
 
 # ----------------------------------------
@@ -58,7 +48,10 @@ target_link_libraries(sort_tracker PUBLIC
 # ----------------------------------------
 include(GNUInstallDirs)
 
-install(TARGETS yolo sort_tracker
+install(
+    TARGETS 
+        yolo
+        sort_tracker
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 

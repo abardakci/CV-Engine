@@ -5,6 +5,8 @@ add_library(core_cv STATIC
     drawer.hpp
 )
 
+find_package(OpenCV REQUIRED)
+
 target_include_directories(core_cv 
     PUBLIC 
         ${CMAKE_CURRENT_SOURCE_DIR}

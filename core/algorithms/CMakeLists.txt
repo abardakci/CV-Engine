@@ -5,6 +5,8 @@ add_library(core_algorithms STATIC
     postprocess.hpp
 )
 
+find_package(OpenCV REQUIRED)
+
 target_include_directories(core_algorithms
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}

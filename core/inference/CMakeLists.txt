@@ -5,6 +5,7 @@ add_library(core_infer STATIC
 )
 
 find_package(yaml-cpp REQUIRED)
+find_package(OpenCV REQUIRED)
 
 target_include_directories(core_infer 
     PUBLIC

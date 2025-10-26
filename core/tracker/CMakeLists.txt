@@ -2,6 +2,8 @@ add_library(core_tracker STATIC
     sort_tracker.cpp
 )
 
+find_package(OpenCV REQUIRED)
+
 target_include_directories(core_tracker 
     PUBLIC 
         ${CMAKE_CURRENT_SOURCE_DIR}
