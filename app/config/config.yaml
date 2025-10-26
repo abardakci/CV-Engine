@@ -1,3 +1,23 @@
-assets:
-  video_path: /home/alper/projects/vision_engine/app/assets/video-image/traffic3.mp4
-  engine_path: /home/alper/projects/vision_engine/app/assets/models/yolov8n.plan
+yolo:
+  engine_type: TensorRT
+  engine_path: share/models/yolov8n.plan
+  engine_path_fp16: share/models/yolov8n_fp16.plan
+  demo_video: share/assets/traffic3.mp4
+  fp16_available: true
+  nms_threshold: 0.4
+  conf_threshold: 0.25
+  input_width: 640
+  input_height: 640
+
+sort_tracker:
+  max_age: 70
+  min_hits: 3
+  iou_threshold: 0.3
+
+display:
+  show_fps: true
+  show_bbox: true
+  show_confidence: true
+  show_class: true  
+  save_output: false
+  output_path: ./output.avi
