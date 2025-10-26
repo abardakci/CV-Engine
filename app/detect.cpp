@@ -4,7 +4,6 @@
 #include "timer.hpp"
 #include "drawer.hpp"
 
-#include <yaml-cpp/yaml.h>
 #include <filesystem>
 #include <iostream>
 #include <fstream>

@@ -2,32 +2,30 @@
 
 #include <NvInfer.h>
 #include "cuda_runtime_api.h"
-
-#include <iostream>
-#include <fstream>
 #include <vector>
-#include <memory>
-#include <algorithm>
+#include <string>
+#include <array>
 #include <format>
 
-#include "file_io.hpp"
 #include "engine_interface.hpp"
-#include "logger.hpp"
 #include "helpers.hpp"
+#include "logger.hpp"
+#include "file_io.hpp"
 
 class TrtEngine : public IEngine
 {
 public:
     TrtEngine() = default;
     ~TrtEngine() override;
-    TrtEngine& operator=(TrtEngine&) = delete;
-    void init(const std::string& path) override;
-    bool infer(std::array<float*, N_MAX_INPUT> inputs, std::array<float*, N_MAX_OUTPUT> outputs) override;
+    TrtEngine &operator=(TrtEngine &) = delete;
+    void init(const std::string &path) override;
+    bool infer(std::array<float *, N_MAX_INPUT> inputs,
+               std::array<float *, N_MAX_OUTPUT> outputs) override;
 
 protected:
-    void buildEngine(const std::string& engine_path);
+    void buildEngine(const std::string &engine_path);
     void setIOTensorNames();
-    void setTensorShape(const std::string& tensor_name, const std::vector<int>& default_shape);
+    void setTensorShape(const std::string &tensor_name, const std::vector<int> &default_shape);
 
 private:
     cudaStream_t stream_;
@@ -44,10 +42,9 @@ private:
     std::array<nvinfer1::Dims, N_MAX_INPUT> input_shapes_;
     std::array<nvinfer1::Dims, N_MAX_OUTPUT> output_shapes_;
 
-    std::array<float*, N_MAX_INPUT> d_input_buffers_;
-    std::array<float*, N_MAX_OUTPUT> d_output_buffers_;
+    std::array<float *, N_MAX_INPUT> d_input_buffers_;
+    std::array<float *, N_MAX_OUTPUT> d_output_buffers_;
 
     std::array<size_t, N_MAX_INPUT> input_sizes_;
     std::array<size_t, N_MAX_OUTPUT> output_sizes_;
-
 };

@@ -5,16 +5,14 @@ add_library(core_cv STATIC
     drawer.hpp
 )
 
-target_include_directories(core_cv PUBLIC 
-    ${CMAKE_CURRENT_SOURCE_DIR}
+target_include_directories(core_cv 
+    PUBLIC 
+        ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_include_directories(core_cv PRIVATE 
-    ${OpenCV_INCLUDE_DIRS}
-)
-
-target_link_libraries(core_cv PRIVATE
-    ${OpenCV_LIBS}
-    core_common
-    core_interfaces
+target_link_libraries(core_cv 
+    PUBLIC
+        ${OpenCV_LIBS}
+        core_common
+        core_interfaces
 )

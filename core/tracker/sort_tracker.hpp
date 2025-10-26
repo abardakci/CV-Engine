@@ -1,12 +1,9 @@
 #pragma once
 
 #include <vector>
-#include <opencv2/opencv.hpp>
-
 #include "types.hpp"
 #include "kalman_interface.hpp"
 #include "kalman_factory.hpp"
-#include "hungarian.hpp"
 
 static constexpr int num_states_kf = 4;
 static constexpr int num_measures_kf = 2;

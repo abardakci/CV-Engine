@@ -1,4 +1,6 @@
 #include "sort_tracker.hpp"
+#include <opencv2/opencv.hpp>
+#include "hungarian.hpp"
 
 KalmanFactory kf_factory;
 

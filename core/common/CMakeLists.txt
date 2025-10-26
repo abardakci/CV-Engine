@@ -7,6 +7,7 @@ add_library(core_common STATIC
     timer.hpp
 )
 
-target_include_directories(core_common PUBLIC 
-    ${CMAKE_CURRENT_SOURCE_DIR}
+target_include_directories(core_common 
+    PUBLIC 
+        ${CMAKE_CURRENT_SOURCE_DIR}
 )

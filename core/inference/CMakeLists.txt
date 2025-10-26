@@ -4,17 +4,19 @@ add_library(core_infer STATIC
     yolo_cfg.hpp
 )
 
-target_include_directories(core_infer PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
+find_package(yaml-cpp REQUIRED)
 
-target_include_directories(core_infer PRIVATE 
-    ${OpenCV_INCLUDE_DIRS}
-)
+target_include_directories(core_infer 
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)   
 
-target_link_libraries(core_infer PRIVATE
-    ${OpenCV_LIBS}
-    core_common
-    core_algorithms
-    core_interfaces
+target_link_libraries(core_infer 
+    PUBLIC
+        ${OpenCV_LIBS}
+        core_common
+        core_algorithms
+        core_interfaces
+    PRIVATE
+        yaml-cpp
 )

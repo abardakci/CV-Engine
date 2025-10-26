@@ -5,15 +5,13 @@ add_library(core_algorithms STATIC
     postprocess.hpp
 )
 
-target_include_directories(core_algorithms PUBLIC 
-    ${CMAKE_CURRENT_SOURCE_DIR}
+target_include_directories(core_algorithms
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_include_directories(core_algorithms PRIVATE 
-    ${OpenCV_INCLUDE_DIRS}
-)
-
-target_link_libraries(core_algorithms PRIVATE
-    ${OpenCV_LIBS}
-    core_common
+target_link_libraries(core_algorithms 
+    PUBLIC
+        ${OpenCV_LIBS}
+        core_common
 )

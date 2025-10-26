@@ -1,8 +1,8 @@
 #pragma once 
 
-#include <iostream>
-#include <string>
 #include <NvInfer.h>
+#include "cuda_runtime_api.h"
+#include <iostream>
 
 using namespace nvinfer1;
 

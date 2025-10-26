@@ -6,7 +6,7 @@
 #include "drawer.hpp"
 #include "engine_factory.hpp"
 #include "yolo_cfg.hpp"
-#include <yaml-cpp/yaml.h>
+
 #include <filesystem>
 #include <iostream>
 #include <fstream>

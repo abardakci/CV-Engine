@@ -8,20 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ----------------------------------------
 # Find external packages
 # ----------------------------------------
-find_package(CUDAToolkit REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(yaml-cpp REQUIRED)
-
-# ----------------------------------------
-# TensorRT package (manually)
-# ----------------------------------------
-set(TRT_INCLUDES /usr/include/x86_64-linux-gnu)
-set(TRT_LIBS
-    /usr/lib/x86_64-linux-gnu/libnvinfer.so.10.10.0
-    /usr/lib/x86_64-linux-gnu/libnvinfer_vc_plugin.so.10.10.0
-    /usr/lib/x86_64-linux-gnu/libnvinfer_plugin.so.10.10.0
-    /usr/lib/x86_64-linux-gnu/libnvinfer_lean.so.10.10.0
-)
 
 # ----------------------------------------
 # Subprojects
@@ -46,10 +33,8 @@ target_link_libraries(yolo PUBLIC
     core_interfaces
     core_cv
     core_algorithms
-    core_trt_backend
     core_factory
     core_infer
-    yaml-cpp
 )
 
 # ----------------------------------------
@@ -63,11 +48,9 @@ target_link_libraries(sort_tracker PUBLIC
     core_interfaces
     core_cv
     core_algorithms
-    core_trt_backend
     core_factory
     core_infer
     core_tracker
-    yaml-cpp
 )
 
 # ----------------------------------------
