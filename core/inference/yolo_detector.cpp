@@ -1,16 +1,26 @@
 #include "yolo_detector.hpp"
 
-Yolov8::Yolov8(const std::string &engine_path, std::unique_ptr<IEngine> engine)
-    : engine_(std::move(engine)), input_buf_{nullptr}, output_buf_{nullptr}
+Yolov8::Yolov8(const YoloConfig &cfg, std::unique_ptr<IEngine> engine)
+    : cfg_(cfg), engine_(std::move(engine)), input_buf_{nullptr}, output_buf_{nullptr}
 {
-    engine_->init(engine_path);
-    input_size_ = 640 * 640 * 3;
-    output_size_ = 84 * 8400;
+    engine_->init(cfg_.engine_path);
+    input_size_ = cfg_.input_width * cfg_.input_height * 3; // assuming 3 channels (BGR or RGB)
+
+    // YOLOv8 uses three detection feature maps (stride 8, 16, 32)
+    // Example for 640x640 input => (80x80 + 40x40 + 20x20) = 8400 total cells
+    output_cell_count_ =
+        (cfg_.input_width / 8) * (cfg_.input_height / 8) +   // P3
+        (cfg_.input_width / 16) * (cfg_.input_height / 16) + // P4
+        (cfg_.input_width / 32) * (cfg_.input_height / 32);  // P5
+
+    // Each prediction per cell: [x, y, w, h] + class scores
+    preds_per_cell_ = cfg_.class_num + 4;
+
+    // Total output tensor size = total cells × predictions per cell
+    output_size_ = output_cell_count_ * preds_per_cell_;
     input_buf_[0] = new float[input_size_];
     output_buf_[0] = new float[output_size_];
 }
-
-Yolov8::~Yolov8() {}
 
 std::vector<Box> Yolov8::infer(const cv::Mat &input)
 {
@@ -26,30 +36,30 @@ std::vector<Box> Yolov8::infer(const cv::Mat &input)
     engine_->infer(input_buf_, output_buf_);
 
     // Postprocess
-    std::vector<Box> detections = postprocess(cv::Mat(kClassNum + 4, 8400, CV_32F, output_buf_[0]),
+    std::vector<Box> detections = postprocess(cv::Mat(preds_per_cell_, output_cell_count_, CV_32F, output_buf_[0]),
                                               letter,
                                               input.rows,
                                               input.cols);
 
-    nms(detections, kNmsThreshold, false);
+    nms(detections, cfg_.nms_threshold, false);
     return detections;
 }
 
 cv::Mat Yolov8::preprocess(const cv::Mat &input, letterbox_t &letter)
 {
     // resize & padding if necessary
-    cv::Mat input_letter = letterbox(input, letter, 640, 640);
+    cv::Mat input_letter = letterbox(input, letter, cfg_.input_width, cfg_.input_height);
 
     // nhwc to nchw
-    cv::Mat blob = cv::dnn::blobFromImage(input_letter,
-                                          1.0 / 255.0,
-                                          cv::Size(),
-                                          cv::Scalar(),
-                                          true,
-                                          false,
-                                          CV_32F);
+    cv::Mat tensor = cv::dnn::blobFromImage(input_letter,
+                                            1.0 / 255.0,
+                                            cv::Size(),
+                                            cv::Scalar(),
+                                            true,
+                                            false,
+                                            CV_32F);
 
-    return blob;
+    return tensor;
 }
 
 std::vector<Box> Yolov8::postprocess(const cv::Mat &yolo_output, letterbox_t &letter, int image_h, int image_w)
@@ -65,15 +75,19 @@ std::vector<Box> Yolov8::postprocess(const cv::Mat &yolo_output, letterbox_t &le
     int max_id = 0;
     float max_score = 0.0f;
 
+    float in_w = cfg_.input_width;
+    float in_h = cfg_.input_height;
+    float conf_threshold = cfg_.conf_threshold;
+
     float *__restrict output_ptr = yolo_outputT.ptr<float>();
-    for (int i = 0; i < 8400; ++i)
+    for (int i = 0; i < output_cell_count_; ++i)
     {
-        int offset = 84 * i;
+        int offset = preds_per_cell_ * i;
         valid = false;
-        for (int j = 4; j < 84; ++j)
+        for (int j = 4; j < preds_per_cell_; ++j)
         {
             float score = output_ptr[offset + j];
-            if (score > kConfThreshold)
+            if (score > conf_threshold)
             {
                 max_score = score;
                 max_id = j - 4;
@@ -83,10 +97,10 @@ std::vector<Box> Yolov8::postprocess(const cv::Mat &yolo_output, letterbox_t &le
 
         if (valid)
         {
-            float x = output_ptr[offset] * 640.0f - letter.x_pad;
-            float y = output_ptr[offset + 1] * 640.0f - letter.y_pad;
-            float w = output_ptr[offset + 2] * 640.0f;
-            float h = output_ptr[offset + 3] * 640.0f;
+            float x = output_ptr[offset] * in_w - letter.x_pad;
+            float y = output_ptr[offset + 1] * in_h - letter.y_pad;
+            float w = output_ptr[offset + 2] * in_w;
+            float h = output_ptr[offset + 3] * in_h;
 
             int x1 = clamp(static_cast<int>((x - w / 2.0f) / letter.scale), 0, image_w);
             int y1 = clamp(static_cast<int>((y - h / 2.0f) / letter.scale), 0, image_h);

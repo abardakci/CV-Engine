@@ -1,7 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <vector>
+#include <array>
+#include <string>
 
 static constexpr int N_MAX_INPUT = 1;
 static constexpr int N_MAX_OUTPUT = 1;

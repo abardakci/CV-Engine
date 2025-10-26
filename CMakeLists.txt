@@ -53,7 +53,7 @@ target_link_libraries(yolo PUBLIC
 )
 
 # ----------------------------------------
-# Executable target: Object Detector
+# Executable target: SORT Tracker
 # ----------------------------------------
 add_executable(sort_tracker app/track.cpp)
 
@@ -71,8 +71,6 @@ target_link_libraries(sort_tracker PUBLIC
     yaml-cpp
 )
 
-target_include_directories(sort_tracker PUBLIC ${OpenCV_INCLUDE_DIRS} ${TRT_INCLUDES})
-
 # ----------------------------------------
 # Install
 # ----------------------------------------
@@ -83,4 +81,10 @@ install(TARGETS yolo sort_tracker
 )
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/config
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR})
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/models
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR})
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/assets
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR})

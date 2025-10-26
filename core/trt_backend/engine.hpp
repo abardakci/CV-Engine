@@ -18,6 +18,7 @@
 class TrtEngine : public IEngine
 {
 public:
+    TrtEngine() = default;
     ~TrtEngine() override;
     TrtEngine& operator=(TrtEngine&) = delete;
     void init(const std::string& path) override;

@@ -1,8 +1,7 @@
 add_library(core_infer STATIC
     yolo_detector.cpp
     yolo_detector.hpp
-    esrgan_upscaler.cpp
-    esrgan_upscaler.hpp
+    yolo_cfg.hpp
 )
 
 target_include_directories(core_infer PUBLIC

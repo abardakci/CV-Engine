@@ -5,6 +5,7 @@
 #include <opencv2/opencv.hpp>
 
 #include "engine_interface.hpp"
+#include "yolo_cfg.hpp"
 #include "types.hpp"
 #include "postprocess.hpp"
 #include "timer.hpp"
@@ -12,24 +13,20 @@
 class Yolov8
 {
 public:
-    Yolov8(const std::string &engine_path, std::unique_ptr<IEngine> engine);
-    ~Yolov8();
+    Yolov8(const YoloConfig &cfg, std::unique_ptr<IEngine> engine);
+    ~Yolov8() = default;
 
     cv::Mat preprocess(const cv::Mat &input, letterbox_t &letter);
     std::vector<Box> infer(const cv::Mat &input);
     std::vector<Box> postprocess(const cv::Mat &yolo_output, letterbox_t &letter, int h, int w);
 
 private:
+    YoloConfig cfg_;
     std::unique_ptr<IEngine> engine_;
-    
     size_t input_size_;
     size_t output_size_;
-    
+    size_t preds_per_cell_;
+    size_t output_cell_count_;
     std::array<float*, N_MAX_INPUT> input_buf_;
     std::array<float*, N_MAX_OUTPUT> output_buf_;
-
-    const int kClassNum = 80;
-    const float kNmsThreshold = 0.45;
-    const float kConfThreshold = 0.25;
-
 };
