@@ -1,8 +1,8 @@
 add_library(libruntime STATIC
-    yolo.cpp
-    yolo.hpp
-    drawer.cpp
-    drawer.hpp
+    draw.cpp
+    draw.hpp
+    yolo_runner.cpp
+    yolo_runner.hpp
     tracker_runner.cpp
     tracker_runner.hpp
 )

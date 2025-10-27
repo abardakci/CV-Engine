@@ -1,10 +1,10 @@
-#include "yolo.hpp"
+#include "yolo_runner.hpp"
 
-#include "yolo_detector.hpp"
+#include "yolo_inference.hpp"
 #include "engine_factory.hpp"
 #include "yolo_cfg.hpp"
 #include "timer.hpp"
-#include "drawer.hpp"
+#include "draw.hpp"
 
 #include <filesystem>
 #include <iostream>
@@ -68,11 +68,11 @@ int run(int argc, char **argv)
         if (frame.empty())
             break;
 
-        auto start = timer::now();
+        auto start = now();
 
         boxes = yolo.infer(frame);
 
-        auto end = timer::now();
+        auto end = now();
         print_time("Inference time", start, end);
 
         for (auto &box : boxes)

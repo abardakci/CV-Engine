@@ -1,6 +1,7 @@
 add_library(libdetection STATIC
-    yolo_detector.cpp
-    yolo_detector.hpp
+    yolo_inference.cpp
+    yolo_inference.hpp
+    yolo_cfg.cpp
     yolo_cfg.hpp
 )
 

@@ -1,6 +1,8 @@
 add_library(libtrackers STATIC
     sort_tracker.cpp
     sort_tracker.hpp
+    sort_cfg.cpp
+    sort_cfg.hpp
 )
 
 find_package(OpenCV REQUIRED)
@@ -18,4 +20,5 @@ target_link_libraries(libtrackers
         libfactory
     PRIVATE
         ${OpenCV_LIBS}
+        yaml-cpp
 )

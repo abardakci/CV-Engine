@@ -1,4 +1,4 @@
 #pragma once
 
-#include "../../yolo.hpp"
+#include "../../yolo_runner.hpp"
 #include "../../tracker_runner.hpp"

@@ -1,4 +1,4 @@
-#include "yolo_detector.hpp"
+#include "yolo_inference.hpp"
 
 Yolov8::Yolov8(const YoloConfig &cfg, std::unique_ptr<IEngine> engine)
     : cfg_(cfg), engine_(std::move(engine)), input_buf_{nullptr}, output_buf_{nullptr}

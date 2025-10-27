@@ -5,8 +5,9 @@
 static cv::Mat compute_cost_mat(const std::vector<Track> &tracks, const std::vector<Box> &detects);
 KalmanFactory kf_factory;
 
-Tracker::Tracker(KalmanType kalman_type)
+Tracker::Tracker(SORTConfig sort_cfg, KalmanType kalman_type)
 {
+    cfg_ = sort_cfg;
     kf_type_ = kalman_type;
 }
 
@@ -56,11 +57,13 @@ void Tracker::SORT(std::vector<Box> &detects)
     // Kalman filter prediction for all activate tracks
     estimateAllTracks();
 
-    constexpr float threshold = 5.0f;
+    const float threshold = cfg_.assignment_threshold;
+    const int age_threshold = cfg_.max_age;
+
     cv::Mat cost_mat = compute_cost_mat(tracks_, detects);
 
     // Maximum weight matching assignment (hungarian algorithm)
-    std::vector<int> assignments = hungarian(cost_mat);
+    std::vector<int> assignments = hungarian(cost_mat.ptr<float>(), cost_mat.rows, cost_mat.cols);
 
     std::vector<bool> used_detections(detects.size(), false);
 
@@ -91,7 +94,6 @@ void Tracker::SORT(std::vector<Box> &detects)
         }
     }
 
-    constexpr int age_threshold = 10;
     removeOldTracks(age_threshold);
 
     // For unmatched detections, create new tracks

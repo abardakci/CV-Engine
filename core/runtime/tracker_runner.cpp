@@ -1,7 +1,7 @@
-#include "yolo_detector.hpp"
+#include "yolo_inference.hpp"
 #include "kf_wrapper.hpp"
 #include "timer.hpp"
-#include "drawer.hpp"
+#include "draw.hpp"
 #include "engine_factory.hpp"
 #include "yolo_cfg.hpp"
 
@@ -35,20 +35,21 @@ int run_tracker(int argc, char** argv)
 
     namespace fs = std::filesystem;
     fs::path config_path = fs::current_path() / "share/config/config.yaml";
-    YoloConfig cfg = loadYoloConfig(config_path.string());
+    YoloConfig yolo_cfg = loadYoloConfig(config_path.string());
+    SORTConfig sort_cfg = loadSORTConfig(config_path.string());
 
     if (video_path.empty())
-        video_path = cfg.demo_video_path;
+        video_path = yolo_cfg.demo_video_path;
 
-    if (use_fp16 && cfg.fp16_available)
+    if (use_fp16 && yolo_cfg.fp16_available)
     {
         std::cout << "Using FP16 precision for inference." << std::endl;
-        cfg.engine_path = cfg.engine_path_fp16;
+        yolo_cfg.engine_path = yolo_cfg.engine_path_fp16;
     }
     else
     {
         std::cout << "Using FP32 precision for inference." << std::endl;
-        cfg.engine_path = cfg.engine_path;
+        yolo_cfg.engine_path = yolo_cfg.engine_path;
     }
 
     cv::VideoCapture cap(video_path);
@@ -59,15 +60,15 @@ int run_tracker(int argc, char** argv)
     }
     
     std::unique_ptr<IEngine> engine = EngineFactory().create(EngineType::TensorRT);
-    Yolov8 nn(cfg, std::move(engine));
-    Tracker sort(KalmanType::KFWrapper);
+    Yolov8 nn(yolo_cfg, std::move(engine));
+    Tracker sort(sort_cfg, KalmanType::KFWrapper);
 
     cv::Mat frame;
     while (cap.read(frame))
     {
         if (frame.empty()) break;
 
-        auto start = timer::now();
+        auto start = now();
 
         vector<Box> boxes = nn.infer(frame);
 
@@ -75,13 +76,13 @@ int run_tracker(int argc, char** argv)
 
         std::cout << "Active tracks: " << sort.tracks_.size() << std::endl;
 
-        auto end = timer::now();
+        auto end = now();
         print_time("total tracker time", start, end);
 
         for (const auto& track : sort.tracks_)
         {
             if (track.age_ == 0)
-                drawBox(frame, track.bbox_);
+                drawBox(frame, track.bbox_, std::format("Clas: {} | ID: {}", track.bbox_.class_id_, track.track_id_));
         }
  
         cv::imshow("Tracker", frame);

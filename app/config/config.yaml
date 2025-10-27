@@ -10,9 +10,9 @@ yolo:
   input_height: 640
 
 sort_tracker:
-  max_age: 70
-  min_hits: 3
-  iou_threshold: 0.3
+  demo_video: share/assets/traffic3.mp4
+  max_age: 30
+  assignment_threshold: 3.0
 
 display:
   show_fps: true

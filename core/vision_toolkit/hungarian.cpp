@@ -1,11 +1,11 @@
 #include "hungarian.hpp"
+#include <opencv2/opencv.hpp>
 
 // Hungarian Algorithm
-std::vector<int> hungarian(cv::Mat &cost_matrix)
+std::vector<int> hungarian(const float* cost_data, const int rows, const int cols)
 {
-    const int rows = cost_matrix.rows;
-    const int cols = cost_matrix.cols;
     constexpr float INF = std::numeric_limits<float>::max();
+    cv::Mat cost_matrix(cv::Size(cols, rows), CV_32F, const_cast<float*>(cost_data));
 
     // Padding to obtain square matrix
     const int n = std::max(rows, cols);
