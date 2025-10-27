@@ -1,45 +1,4 @@
-#include "postprocess.hpp"
-
-cv::Mat letterbox(cv::Mat input, letterbox_t &letter, int w, int h)
-{
-    if (input.rows == h && input.cols == w)
-    {
-        return input;
-    }
-
-    cv::Mat dst = cv::Mat::zeros(cv::Size(w, h), input.type());
-
-    int in_h = input.rows;
-    int in_w = input.cols;
-    float scale = std::min(static_cast<float>(w) / in_w, static_cast<float>(h) / in_h);
-    letter.scale = scale;
-
-    if (in_h > in_w)
-    {
-        int w_out = in_w * scale;
-
-        int pad_per_side = (640 - w_out) / 2;
-        letter.x_pad = pad_per_side;
-
-        cv::Rect roi(pad_per_side, 0, w_out, 640);
-        cv::Mat roi_dst = dst(roi);
-        cv::resize(input, roi_dst, roi_dst.size(), scale, scale);
-    }
-
-    else if (in_w > in_h)
-    {
-        int h_out = in_h * scale;
-
-        int pad_per_side = (640 - h_out) / 2;
-        letter.y_pad = pad_per_side;
-
-        cv::Rect roi(0, pad_per_side, 640, h_out);
-        cv::Mat roi_dst = dst(roi);
-        cv::resize(input, roi_dst, roi_dst.size(), scale, scale);
-    }
-
-    return dst;
-}
+#include "postproc.hpp"
 
 float iou(Box &b1, Box &b2)
 {
@@ -72,7 +31,7 @@ float iou(Box &b1, Box &b2)
     return static_cast<float>(inter_area) / static_cast<float>(union_area);
 }
 
-static bool compareBoxes(const Box &b1, const Box &b2)
+static bool bbox_comparator(const Box &b1, const Box &b2)
 {
     return b1.conf_score_ > b2.conf_score_;
 }
@@ -80,7 +39,7 @@ static bool compareBoxes(const Box &b1, const Box &b2)
 void nms(std::vector<Box> &bboxes, float iou_threshold, bool is_sorted)
 {
     if (!is_sorted)
-        std::sort(bboxes.begin(), bboxes.end(), compareBoxes);
+        std::sort(bboxes.begin(), bboxes.end(), bbox_comparator);
 
     std::vector<Box> result_boxes;
     std::vector<bool> suppressed(bboxes.size(), false);

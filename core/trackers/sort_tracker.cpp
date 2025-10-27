@@ -1,7 +1,8 @@
 #include "sort_tracker.hpp"
-#include <opencv2/opencv.hpp>
 #include "hungarian.hpp"
+#include <opencv2/opencv.hpp>
 
+static cv::Mat compute_cost_mat(const std::vector<Track> &tracks, const std::vector<Box> &detects);
 KalmanFactory kf_factory;
 
 Tracker::Tracker(KalmanType kalman_type)
@@ -56,7 +57,7 @@ void Tracker::SORT(std::vector<Box> &detects)
     estimateAllTracks();
 
     constexpr float threshold = 5.0f;
-    cv::Mat cost_mat = computeCostMatrix(tracks_, detects);
+    cv::Mat cost_mat = compute_cost_mat(tracks_, detects);
 
     // Maximum weight matching assignment (hungarian algorithm)
     std::vector<int> assignments = hungarian(cost_mat);
@@ -102,4 +103,24 @@ void Tracker::SORT(std::vector<Box> &detects)
             addNewTrack(detects[i]);
         }
     }
+}
+
+static cv::Mat compute_cost_mat(const std::vector<Track> &tracks, const std::vector<Box> &detects)
+{
+    int w = detects.size();
+    int h = tracks.size();
+
+    cv::Mat cost_mat(cv::Size(w, h), CV_32F);
+
+    for (int i = 0; i < h; ++i)
+    {
+        for (int j = 0; j < w; ++j)
+        {
+            float distance = std::hypot(detects[j].xywh_.x - tracks[i].bbox_.xywh_.x,
+                                        detects[j].xywh_.y - tracks[i].bbox_.xywh_.y);
+            cost_mat.at<float>(i, j) = distance;
+        }
+    }
+    
+    return cost_mat;
 }

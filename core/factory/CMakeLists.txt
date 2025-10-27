@@ -1,21 +1,21 @@
-add_library(core_factory STATIC
+add_library(libfactory STATIC
     engine_factory.cpp
     kalman_factory.cpp
     engine_factory.hpp
     kalman_factory.hpp
 )
 
-target_include_directories(core_factory 
+target_include_directories(libfactory 
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(core_factory
+target_link_libraries(libfactory
     PUBLIC
-        core_common
+        core_utils
         core_interfaces
 
     PRIVATE
-        core_trt_backend
-        core_cv
+        libtrt_backend
+        libkalman_filter
 )

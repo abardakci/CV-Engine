@@ -7,7 +7,8 @@
 #include "engine_interface.hpp"
 #include "yolo_cfg.hpp"
 #include "types.hpp"
-#include "postprocess.hpp"
+#include "postproc.hpp"
+#include "preproc.hpp"
 #include "timer.hpp"
 
 class Yolov8
@@ -27,6 +28,7 @@ private:
     size_t output_size_;
     size_t preds_per_cell_;
     size_t output_cell_count_;
+    unsigned char* preproc_buffer_;
     std::array<float*, N_MAX_INPUT> input_buf_;
     std::array<float*, N_MAX_OUTPUT> output_buf_;
 };

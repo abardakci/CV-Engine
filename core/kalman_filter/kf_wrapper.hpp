@@ -1,7 +1,7 @@
 #pragma once
 
-#include <opencv2/opencv.hpp>
 #include "kalman_interface.hpp"
+#include <opencv2/opencv.hpp>
 
 class KFWrapper : public IKalmanFilter {
 public:

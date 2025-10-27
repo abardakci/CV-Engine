@@ -88,7 +88,7 @@ void TrtEngine::setIOTensorNames()
 void TrtEngine::buildEngine(const std::string &model_path)
 {
     std::vector<char> model_bin;
-    loadBinaryFromFile(model_path, model_bin);
+    load_binary_file(model_path, model_bin);
 
     engine_.reset(runtime_->deserializeCudaEngine(model_bin.data(), model_bin.size()));
 }

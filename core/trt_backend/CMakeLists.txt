@@ -1,4 +1,4 @@
-add_library(core_trt_backend STATIC
+add_library(libtrt_backend STATIC
     engine.cpp
     helpers.cpp
     engine.hpp
@@ -15,16 +15,16 @@ set(TRT_LIBS
     /usr/lib/x86_64-linux-gnu/libnvinfer_lean.so.10.10.0
 )
 
-target_include_directories(core_trt_backend
+target_include_directories(libtrt_backend
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${TRT_INCLUDES}
 )
 
-target_link_libraries(core_trt_backend 
+target_link_libraries(libtrt_backend 
     PUBLIC
         CUDA::cudart
         ${TRT_LIBS}
-        core_common
+        core_utils
         core_interfaces
 )

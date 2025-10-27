@@ -8,15 +8,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ----------------------------------------
 # Subprojects
 # ----------------------------------------
-add_subdirectory(core/common)      # core_common
-add_subdirectory(core/cv_wrapper)  # core_cv
-add_subdirectory(core/algorithms)  # core_algorithms
-add_subdirectory(core/trt_backend) # core_trt_backend
-add_subdirectory(core/inference)   # core_infer
-add_subdirectory(core/tracker)     # core_tracker
-add_subdirectory(core/interfaces)  # core_interfaces
-add_subdirectory(core/factory)
-add_subdirectory(core/application)
+add_subdirectory(core/core_utils) # core_utils
+add_subdirectory(core/kalman_filter)  # libkalman_filter
+add_subdirectory(core/vision_toolkit)  # libvision_toolkit
+add_subdirectory(core/trt_backend) # libtrt_backend
+add_subdirectory(core/detection)   # libdetection
+add_subdirectory(core/trackers)     # libtrackers
+add_subdirectory(core/interfaces)
+add_subdirectory(core/factory)     # libfactory
+add_subdirectory(core/runtime)     # libruntime
 
 # ----------------------------------------
 # Executable target: Object Detector
@@ -24,7 +24,7 @@ add_subdirectory(core/application)
 add_executable(yolo app/detect.cpp)
 
 target_link_libraries(yolo PUBLIC
-    core_app
+    libruntime
 )
 
 # ----------------------------------------
@@ -33,14 +33,7 @@ target_link_libraries(yolo PUBLIC
 add_executable(sort_tracker app/track.cpp)
 
 target_link_libraries(sort_tracker PUBLIC
-    ${OpenCV_LIBS}
-    core_common
-    core_interfaces
-    core_cv
-    core_algorithms
-    core_factory
-    core_infer
-    core_tracker
+    libruntime
 )
 
 # ----------------------------------------

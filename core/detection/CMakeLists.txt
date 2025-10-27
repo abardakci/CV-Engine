@@ -1,4 +1,4 @@
-add_library(core_infer STATIC
+add_library(libdetection STATIC
     yolo_detector.cpp
     yolo_detector.hpp
     yolo_cfg.hpp
@@ -7,17 +7,18 @@ add_library(core_infer STATIC
 find_package(yaml-cpp REQUIRED)
 find_package(OpenCV REQUIRED)
 
-target_include_directories(core_infer 
+target_include_directories(libdetection 
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )   
 
-target_link_libraries(core_infer 
+target_link_libraries(libdetection
     PUBLIC
         ${OpenCV_LIBS}
-        core_common
-        core_algorithms
+        core_utils
         core_interfaces
+        libvision_toolkit
+
     PRIVATE
         yaml-cpp
 )

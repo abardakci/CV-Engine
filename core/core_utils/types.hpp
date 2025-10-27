@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include "../interfaces/kalman_interface.hpp"
+#include "kalman_interface.hpp"
 
 // ---------------------------------------
 // Structs -------------------------------
@@ -29,6 +29,14 @@ typedef struct
     int y_pad;
     float scale;
 } letterbox_t;
+
+typedef struct
+{
+    unsigned char *data;
+    int width;
+    int height;
+    int channels;
+} ImageWrapper;
 
 // ---------------------------------------
 // Classes -------------------------------

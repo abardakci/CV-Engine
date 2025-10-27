@@ -18,6 +18,7 @@ Yolov8::Yolov8(const YoloConfig &cfg, std::unique_ptr<IEngine> engine)
 
     // Total output tensor size = total cells × predictions per cell
     output_size_ = output_cell_count_ * preds_per_cell_;
+    preproc_buffer_ = new unsigned char[input_size_];
     input_buf_[0] = new float[input_size_];
     output_buf_[0] = new float[output_size_];
 }
@@ -48,10 +49,15 @@ std::vector<Box> Yolov8::infer(const cv::Mat &input)
 cv::Mat Yolov8::preprocess(const cv::Mat &input, letterbox_t &letter)
 {
     // resize & padding if necessary
-    cv::Mat input_letter = letterbox(input, letter, cfg_.input_width, cfg_.input_height);
+    ImageWrapper img_wrapper;
+    img_wrapper.data = input.data;
+    img_wrapper.width = input.cols;
+    img_wrapper.height = input.rows;
+    img_wrapper.channels = input.channels();
+    letterbox(img_wrapper, preproc_buffer_, letter, cfg_.input_width, cfg_.input_height);
 
     // nhwc to nchw
-    cv::Mat tensor = cv::dnn::blobFromImage(input_letter,
+    cv::Mat tensor = cv::dnn::blobFromImage(cv::Mat(cv::Size(cfg_.input_width, cfg_.input_height), CV_8UC3, preproc_buffer_),
                                             1.0 / 255.0,
                                             cv::Size(),
                                             cv::Scalar(),
@@ -102,10 +108,10 @@ std::vector<Box> Yolov8::postprocess(const cv::Mat &yolo_output, letterbox_t &le
             float w = output_ptr[offset + 2] * in_w;
             float h = output_ptr[offset + 3] * in_h;
 
-            int x1 = clamp(static_cast<int>((x - w / 2.0f) / letter.scale), 0, image_w);
-            int y1 = clamp(static_cast<int>((y - h / 2.0f) / letter.scale), 0, image_h);
-            int x2 = clamp(static_cast<int>((x + w / 2.0f) / letter.scale), 0, image_w);
-            int y2 = clamp(static_cast<int>((y + h / 2.0f) / letter.scale), 0, image_h);
+            int x1 = std::clamp(static_cast<int>((x - w / 2.0f) / letter.scale), 0, image_w);
+            int y1 = std::clamp(static_cast<int>((y - h / 2.0f) / letter.scale), 0, image_h);
+            int x2 = std::clamp(static_cast<int>((x + w / 2.0f) / letter.scale), 0, image_w);
+            int y2 = std::clamp(static_cast<int>((y + h / 2.0f) / letter.scale), 0, image_h);
 
             output_boxes.emplace_back(x1, y1, x2, y2, max_id, max_score);
             ++valid_box_num;

@@ -1,6 +1,6 @@
 #include "file_io.hpp"
 
-int loadBinaryFromFile(const std::string &fileName, std::vector<char> &output)
+int load_binary_file(const std::string &fileName, std::vector<char> &output)
 {
     std::ifstream reader(fileName, std::ios::binary | std::ios::ate);
     if (!reader)
