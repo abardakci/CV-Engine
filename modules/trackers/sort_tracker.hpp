@@ -15,7 +15,6 @@ public:
     Tracker(SORTConfig sort_cfg, KalmanType kalman_type);
     ~Tracker();
 
-    void estimateAllTracks();
     void addNewTrack(Box& new_box);
     void removeOldTracks(const int age_limit = 10);
     void SORT(std::vector<Box>& detects);

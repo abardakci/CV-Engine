@@ -21,4 +21,5 @@ target_link_libraries(libruntime
         libfactory
         libkalman_filter
         libtrackers
+        libupscaler
 )

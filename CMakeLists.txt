@@ -8,15 +8,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ----------------------------------------
 # Subprojects
 # ----------------------------------------
-add_subdirectory(core/core_utils) # core_utils
-add_subdirectory(core/kalman_filter)  # libkalman_filter
-add_subdirectory(core/vision_toolkit)  # libvision_toolkit
-add_subdirectory(core/trt_backend) # libtrt_backend
-add_subdirectory(core/detection)   # libdetection
-add_subdirectory(core/trackers)     # libtrackers
-add_subdirectory(core/interfaces)
-add_subdirectory(core/factory)     # libfactory
-add_subdirectory(core/runtime)     # libruntime
+add_subdirectory(modules/core_utils)     # core_utils
+add_subdirectory(modules/interfaces)     # core_interfaces
+add_subdirectory(modules/kalman_filter)  # libkalman_filter
+add_subdirectory(modules/vision_toolkit) # libvision_toolkit
+add_subdirectory(modules/trt_backend)    # libtrt_backend
+add_subdirectory(modules/detection)      # libdetection
+add_subdirectory(modules/upscaler)       # libupscaler
+add_subdirectory(modules/trackers)       # libtrackers
+add_subdirectory(modules/factory)        # libfactory
+add_subdirectory(modules/runtime)        # libruntime
 
 # ----------------------------------------
 # Executable target: Object Detector
@@ -35,6 +36,15 @@ add_executable(sort_tracker app/track.cpp)
 target_link_libraries(sort_tracker PUBLIC
     libruntime
 )
+
+# ----------------------------------------
+# Executable target: ESRGAN Upscaler
+# ----------------------------------------
+# add_executable(sort_tracker app/track.cpp)
+
+# target_link_libraries(sort_tracker PUBLIC
+#     libruntime
+# )
 
 # ----------------------------------------
 # Install

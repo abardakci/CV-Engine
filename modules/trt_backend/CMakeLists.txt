@@ -1,7 +1,8 @@
 add_library(libtrt_backend STATIC
     engine.cpp
-    helpers.cpp
     engine.hpp
+    tensor.hpp
+    helpers.cpp
     helpers.hpp
     logger.hpp
 )

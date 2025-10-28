@@ -112,7 +112,7 @@ void TrtEngine::setTensorShape(const std::string &tensor_name, const std::vector
             dims.d[i] = default_shape[i];
     }
 
-    int ret = ctx_->setInputShape(tensor_name.c_str(), dims);
+    int ret = ctx_->setInputShape(0, dims);
     if (ret < 0)
     {
         std::cerr << "[TensorRT] Failed to set input shape for "

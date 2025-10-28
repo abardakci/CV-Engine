@@ -43,7 +43,7 @@ def inspect_plan(plan_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Inspect a TensorRT engine (.plan) file")
-    parser.add_argument("--path", type=str, help="Path to the TensorRT .plan file to inspect")
+    parser.add_argument("--path", type=str, required=True, help="Path to the TensorRT .plan file to inspect")
     args = parser.parse_args()
 
     inspect_plan(args.path)

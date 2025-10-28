@@ -1,6 +1,6 @@
 #include "postproc.hpp"
 
-float iou(Box &b1, Box &b2)
+float iou(const Box &b1, const Box &b2)
 {
     if (b1.xyxy_.x1 > b2.xyxy_.x2 || b1.xyxy_.x2 < b2.xyxy_.x1 ||
         b1.xyxy_.y1 > b2.xyxy_.y2 || b1.xyxy_.y2 < b2.xyxy_.y1)

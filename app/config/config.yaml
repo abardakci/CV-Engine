@@ -11,8 +11,8 @@ yolo:
 
 sort_tracker:
   demo_video: share/assets/traffic3.mp4
-  max_age: 30
-  assignment_threshold: 3.0
+  max_age: 10
+  assignment_threshold: 0.3
 
 display:
   show_fps: true

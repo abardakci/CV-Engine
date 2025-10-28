@@ -44,7 +44,7 @@ private:
 
     std::array<float *, N_MAX_INPUT> d_input_buffers_;
     std::array<float *, N_MAX_OUTPUT> d_output_buffers_;
-
+    
     std::array<size_t, N_MAX_INPUT> input_sizes_;
     std::array<size_t, N_MAX_OUTPUT> output_sizes_;
 };
