@@ -1,28 +1,24 @@
 #pragma once
 
-#include <string_view>
 #include <NvInfer.h>
-#include <cuda_fp16.h>
-#include <type_traits>
+#include "cuda_runtime_api.h"
 
-template <typename T>
-concept TensorDtype =
-    std::same_as<T, float> || std::same_as<T, __half>;
+#include "helpers.hpp"
 
-template <TensorDtype T>
 class Tensor
 {
 public:
     Tensor() = default;
-    ~Tensor() = default;
+    Tensor(std::string name, nvinfer1::TensorIOMode mode, nvinfer1::Dims dimensions);
+    ~Tensor();
 
-private:
-    std::string name;
-    nvinfer1::Dims dims{};
-    bool has_dynamic_shape = false;
-    size_t size = 0;
-    T *h_buffer = nullptr;
-    T *d_buffer = nullptr;
+public:
+    std::string name_;
+    nvinfer1::TensorIOMode mode_;
+    nvinfer1::Dims dims_;
+    size_t elem_size_;
+    float *h_buffer_;
+    float *d_buffer_;
 };
 
 inline size_t calc_elem_size(nvinfer1::Dims dims)

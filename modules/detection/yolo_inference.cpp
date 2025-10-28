@@ -1,7 +1,7 @@
 #include "yolo_inference.hpp"
 
 Yolov8::Yolov8(const YoloConfig &cfg, std::unique_ptr<IEngine> engine)
-    : cfg_(cfg), engine_(std::move(engine)), input_buf_{nullptr}, output_buf_{nullptr}
+    : cfg_(cfg), engine_(std::move(engine))
 {
     engine_->init(cfg_.engine_path);
     input_size_ = cfg_.input_width * cfg_.input_height * 3; // assuming 3 channels (BGR or RGB)
@@ -19,8 +19,6 @@ Yolov8::Yolov8(const YoloConfig &cfg, std::unique_ptr<IEngine> engine)
     // Total output tensor size = total cells × predictions per cell
     output_size_ = output_cell_count_ * preds_per_cell_;
     preproc_buffer_ = new unsigned char[input_size_];
-    input_buf_[0] = new float[input_size_];
-    output_buf_[0] = new float[output_size_];
 }
 
 std::vector<Box> Yolov8::infer(const cv::Mat &input)
@@ -31,13 +29,14 @@ std::vector<Box> Yolov8::infer(const cv::Mat &input)
 
     // Set input buffers
     CV_Assert(input_blob.type() == CV_32FC1 && input_blob.isContinuous());
-    input_buf_[0] = (float *)input_blob.data;
 
     // Inference
-    engine_->infer(input_buf_, output_buf_);
-
+    engine_->set_input(input_blob.ptr<float>());
+    engine_->infer();
+    float *output_buf = (float *)engine_->get_output();
+    
     // Postprocess
-    std::vector<Box> detections = postprocess(cv::Mat(preds_per_cell_, output_cell_count_, CV_32F, output_buf_[0]),
+    std::vector<Box> detections = postprocess(cv::Mat(preds_per_cell_, output_cell_count_, CV_32F, output_buf),
                                               letter,
                                               input.rows,
                                               input.cols);
@@ -64,7 +63,6 @@ cv::Mat Yolov8::preprocess(const cv::Mat &input, letterbox_t &letter)
                                             true,
                                             false,
                                             CV_32F);
-
     return tensor;
 }
 

@@ -5,9 +5,7 @@ std::unique_ptr<IKalmanFilter> KalmanFactory::create(KalmanType type)
 {
     switch (type)
     {
-        case KalmanType::KFWrapper:
-            return std::make_unique<KFWrapper>();
-        default:
-            throw std::invalid_argument("Unknown KalmanType");
+        case KalmanType::KFWrapper: return std::make_unique<KFWrapper>();
+        default: throw std::invalid_argument("Unknown KalmanType");
     }
 }

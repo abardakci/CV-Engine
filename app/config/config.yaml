@@ -1,9 +1,9 @@
 yolo:
   engine_type: TensorRT
   engine_path: share/models/yolov8n.plan
-  engine_path_fp16: share/models/yolov8n_fp16.plan
+  engine_path_fp16: share/models/yolov8n.plan
   demo_video: share/assets/traffic3.mp4
-  fp16_available: true
+  fp16_available: false
   nms_threshold: 0.4
   conf_threshold: 0.25
   input_width: 640

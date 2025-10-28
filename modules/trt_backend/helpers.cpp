@@ -1,39 +1,23 @@
 #include "helpers.hpp"
 
-void printOptimizationProfiles(const ICudaEngine* engine)
+nvinfer1::IRuntime* create_runtime(Logger &logger)
 {
-    int n_profiles = engine->getNbOptimizationProfiles();
-    int n_io = engine->getNbIOTensors();
+    return nvinfer1::createInferRuntime(logger);
+}
 
-    std::cout << "Total optimization profiles: " << n_profiles << std::endl;
+nvinfer1::ICudaEngine* deserialize_engine(nvinfer1::IRuntime *runtime, const std::vector<char> &plan_binary)
+{
+    return runtime->deserializeCudaEngine(plan_binary.data(), plan_binary.size());
+}
 
-    for (int p = 0; p < n_profiles; ++p)
-    {
-        std::cout << "\n=== Profile " << p << " ===" << std::endl;
+nvinfer1::ICudaEngine* create_engine(nvinfer1::IRuntime* runtime, const std::string &model_path)
+{
+    auto file = load_binary_file(model_path);
+    nvinfer1::ICudaEngine* engine = deserialize_engine(runtime, file);
+    return engine;
+}
 
-        for (int i = 0; i < n_io; ++i)
-        {
-            const char* name = engine->getIOTensorName(i);
-            nvinfer1::TensorIOMode mode = engine->getTensorIOMode(name);
-            if (mode != nvinfer1::TensorIOMode::kINPUT)
-                continue;
-
-            std::cout << "Input tensor: " << name << std::endl;
-
-            for (auto sel : {OptProfileSelector::kMIN,
-                             OptProfileSelector::kOPT,
-                             OptProfileSelector::kMAX})
-            {
-                Dims d = engine->getProfileShape(name, p, sel);
-
-                const char* label = (sel == OptProfileSelector::kMIN) ? "MIN" :
-                                    (sel == OptProfileSelector::kOPT) ? "OPT" : "MAX";
-
-                std::cout << "  " << label << ": [ ";
-                for (int j = 0; j < d.nbDims; ++j)
-                    std::cout << d.d[j] << (j + 1 < d.nbDims ? ", " : " ");
-                std::cout << "]" << std::endl;
-            }
-        }
-    }
+nvinfer1::IExecutionContext* create_ctx(nvinfer1::ICudaEngine *engine)
+{
+    return engine->createExecutionContext();
 }

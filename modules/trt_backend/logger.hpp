@@ -9,7 +9,7 @@ class Logger : public nvinfer1::ILogger
 public:
     void log(nvinfer1::ILogger::Severity severity, const char* msg) noexcept override 
     {
-        if (severity <= ILogger::Severity::kERROR)
+        if (severity <= nvinfer1::ILogger::Severity::kERROR)
             std::cout << "[TensorRT] " << msg << std::endl;
     }
 };
