@@ -3,22 +3,32 @@
 #include <NvInfer.h>
 #include "cuda_runtime_api.h"
 
+#include "cuda_buffer.hpp"
 #include "helpers.hpp"
 
 class Tensor
 {
 public:
     Tensor() = default;
-    Tensor(std::string name, nvinfer1::TensorIOMode mode, nvinfer1::Dims dimensions);
     ~Tensor();
 
+    Tensor(const Tensor &) = delete;
+    Tensor &operator=(const Tensor &) = delete;
+
+    Tensor(Tensor &&other) noexcept;
+    Tensor &operator=(Tensor &&other) noexcept;
+
+    Tensor(int index, std::string name, nvinfer1::TensorIOMode mode, nvinfer1::Dims dimensions);
+
 public:
+    int index_ = -1;
     std::string name_;
-    nvinfer1::TensorIOMode mode_;
+    nvinfer1::TensorIOMode io_mode_;
     nvinfer1::Dims dims_;
-    size_t elem_size_;
-    float *h_buffer_;
-    float *d_buffer_;
+    size_t elem_size_ = 0;
+    CudaBuffer<float, HostAllocator> h_buffer;
+    CudaBuffer<float, DeviceAllocator> d_buffer;
+    
 };
 
 inline size_t calc_elem_size(nvinfer1::Dims dims)

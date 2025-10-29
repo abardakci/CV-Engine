@@ -1,4 +1,5 @@
 #include "yolo_inference.hpp"
+#include "debug_utils.hpp"
 
 Yolov8::Yolov8(const YoloConfig &cfg, std::unique_ptr<IEngine> engine)
     : cfg_(cfg), engine_(std::move(engine))
@@ -26,13 +27,13 @@ std::vector<Box> Yolov8::infer(const cv::Mat &input)
     // Preprocess
     letterbox_t letter = {0, 0, 1.0f};
     cv::Mat input_blob = preprocess(input, letter);
-
-    // Set input buffers
     CV_Assert(input_blob.type() == CV_32FC1 && input_blob.isContinuous());
 
     // Inference
     engine_->set_input(input_blob.ptr<float>());
+
     engine_->infer();
+    
     float *output_buf = (float *)engine_->get_output();
     
     // Postprocess

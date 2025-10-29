@@ -13,6 +13,7 @@
 #include "logger.hpp"
 #include "file_io.hpp"
 #include "tensor.hpp"
+#include "tensor_factory.hpp"
 
 class TrtEngine : public IEngine
 {
@@ -26,6 +27,7 @@ public:
     float *get_output() override;
 
 private:
+    bool initialized_ = false;
     cudaStream_t stream_;
     std::unique_ptr<nvinfer1::IRuntime> runtime_;
     std::unique_ptr<nvinfer1::ICudaEngine> engine_;

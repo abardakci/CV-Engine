@@ -23,7 +23,9 @@
             "displayName": "Linux Debug",
             "inherits": "linux",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_FLAGS_DEBUG": "-O0 -g3 -fno-inline -fno-omit-frame-pointer",
+                "CMAKE_C_FLAGS_DEBUG": "-O0 -g3 -fno-inline -fno-omit-frame-pointer"
             }
         },
         {

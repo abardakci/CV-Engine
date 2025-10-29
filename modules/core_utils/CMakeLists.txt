@@ -3,6 +3,8 @@ add_library(core_utils STATIC
     types.hpp
     file_io.cpp
     file_io.hpp
+    debug_utils.cpp
+    debug_utils.hpp
     timer.hpp
 )
 

@@ -1,8 +1,14 @@
 add_library(libtrt_backend STATIC
     engine.cpp
     engine.hpp
+    cuda_allocator.cpp
+    cuda_allocator.hpp
+    cuda_buffer.cpp
+    cuda_buffer.hpp
     tensor.cpp
     tensor.hpp
+    tensor_factory.cpp
+    tensor_factory.hpp
     helpers.cpp
     helpers.hpp
     logger.hpp

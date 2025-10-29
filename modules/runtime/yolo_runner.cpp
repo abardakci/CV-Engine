@@ -5,6 +5,7 @@
 #include "yolo_cfg.hpp"
 #include "timer.hpp"
 #include "draw.hpp"
+#include "debug_utils.hpp"
 
 #include <filesystem>
 #include <iostream>
@@ -15,6 +16,7 @@ using namespace std;
 
 int run(int argc, char **argv)
 {
+    dbg::cv_mat_flags_info(0);
     std::string video_path;
     bool use_fp16 = false;
 
