@@ -1,7 +1,5 @@
 add_library(libfactory STATIC
-    engine_factory.cpp
     kalman_factory.cpp
-    engine_factory.hpp
     kalman_factory.hpp
 )
 

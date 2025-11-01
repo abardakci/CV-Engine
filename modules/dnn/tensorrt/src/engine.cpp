@@ -35,16 +35,14 @@ void TrtEngine::init(const std::string &path)
     ctx_->setInputTensorAddress(input_.name_.c_str(), input_.d_buffer_);
     ctx_->setOutputTensorAddress(output_.name_.c_str(), output_.d_buffer_);
 
-    CUDA_CHECK(
-        cudaStreamCreate(&stream_));
+    CUDA_CHECK(cudaStreamCreate(&stream_));
 }
 
 void TrtEngine::set_input(float *input)
 {
     input_.h_buffer_ = input;
 
-    CUDA_CHECK(
-        cudaMemcpyAsync(input_.d_buffer_, input_.h_buffer_, input_.elem_size_ * sizeof(float), cudaMemcpyHostToDevice, stream_));
+    CUDA_CHECK(cudaMemcpyAsync(input_.d_buffer_, input_.h_buffer_, input_.elem_size_ * sizeof(float), cudaMemcpyHostToDevice, stream_));
 }
 
 float *TrtEngine::get_output()
@@ -63,11 +61,9 @@ bool TrtEngine::infer()
         return false;
     }
 
-    CUDA_CHECK(
-        cudaMemcpyAsync(output_.h_buffer_, output_.d_buffer_, output_.elem_size_ * sizeof(float), cudaMemcpyDeviceToHost, stream_));
+    CUDA_CHECK(cudaMemcpyAsync(output_.h_buffer_, output_.d_buffer_, output_.elem_size_ * sizeof(float), cudaMemcpyDeviceToHost, stream_));
 
-    CUDA_CHECK(
-        cudaStreamSynchronize(stream_));
+    CUDA_CHECK(cudaStreamSynchronize(stream_));
 
     return true;
 }

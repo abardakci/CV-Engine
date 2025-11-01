@@ -1,20 +1,19 @@
 add_library(libtrt_backend STATIC
-    engine.cpp
-    engine.hpp
-    cuda_allocator.cpp
-    cuda_allocator.hpp
-    cuda_buffer.cpp
-    cuda_buffer.hpp
-    tensor.cpp
-    tensor.hpp
-    tensor_factory.cpp
-    tensor_factory.hpp
-    helpers.cpp
-    helpers.hpp
-    logger.hpp
+    src/engine.cpp
+    src/engine.hpp
+    src/cuda_buffer.cpp
+    src/cuda_buffer.hpp
+    src/tensor.cpp
+    src/tensor.hpp
+    src/tensor_factory.cpp
+    src/tensor_factory.hpp
+    src/helpers.cpp
+    src/helpers.hpp
+    src/logger.hpp
 )
 
 find_package(CUDAToolkit REQUIRED)
+
 set(TRT_INCLUDES /usr/include/x86_64-linux-gnu)
 set(TRT_LIBS
     /usr/lib/x86_64-linux-gnu/libnvinfer.so.10.10.0
@@ -33,6 +32,7 @@ target_link_libraries(libtrt_backend
     PUBLIC
         CUDA::cudart
         ${TRT_LIBS}
+        liballoc
         core_utils
         core_interfaces
 )

@@ -12,12 +12,13 @@ add_subdirectory(modules/core_utils)     # core_utils
 add_subdirectory(modules/interfaces)     # core_interfaces
 add_subdirectory(modules/kalman_filter)  # libkalman_filter
 add_subdirectory(modules/vision_toolkit) # libvision_toolkit
-add_subdirectory(modules/trt_backend)    # libtrt_backend
+add_subdirectory(modules/dnn)            # forge_dnn
 add_subdirectory(modules/detection)      # libdetection
 add_subdirectory(modules/upscaler)       # libupscaler
 add_subdirectory(modules/trackers)       # libtrackers
 add_subdirectory(modules/factory)        # libfactory
 add_subdirectory(modules/runtime)        # libruntime
+add_subdirectory(modules/allocator)      # liballoc
 
 # ----------------------------------------
 # Executable target: Object Detector
