@@ -8,15 +8,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ----------------------------------------
 # Subprojects
 # ----------------------------------------
-add_subdirectory(modules/core_utils)     # core_utils
-add_subdirectory(modules/interfaces)     # core_interfaces
-add_subdirectory(modules/kalman_filter)  # libkalman_filter
+add_subdirectory(modules/utils)          # libutils
 add_subdirectory(modules/vision_toolkit) # libvision_toolkit
 add_subdirectory(modules/dnn)            # forge_dnn
 add_subdirectory(modules/detection)      # libdetection
-add_subdirectory(modules/upscaler)       # libupscaler
-add_subdirectory(modules/trackers)       # libtrackers
-add_subdirectory(modules/factory)        # libfactory
 add_subdirectory(modules/runtime)        # libruntime
 add_subdirectory(modules/allocator)      # liballoc
 
@@ -32,11 +27,11 @@ target_link_libraries(yolo PUBLIC
 # ----------------------------------------
 # Executable target: SORT Tracker
 # ----------------------------------------
-add_executable(sort_tracker app/track.cpp)
+# add_executable(sort_tracker app/track.cpp)
 
-target_link_libraries(sort_tracker PUBLIC
-    libruntime
-)
+# target_link_libraries(sort_tracker PUBLIC
+#     libruntime
+# )
 
 # ----------------------------------------
 # Executable target: ESRGAN Upscaler
@@ -55,7 +50,7 @@ include(GNUInstallDirs)
 install(
     TARGETS 
         yolo
-        sort_tracker
+        # sort_tracker
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 

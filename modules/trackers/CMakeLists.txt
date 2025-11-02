@@ -1,8 +1,7 @@
+file(GLOB SRC "src/*.cpp")
+
 add_library(libtrackers STATIC
-    sort_tracker.cpp
-    sort_tracker.hpp
-    sort_cfg.cpp
-    sort_cfg.hpp
+    ${SRC}
 )
 
 find_package(OpenCV REQUIRED)
@@ -14,10 +13,8 @@ target_include_directories(libtrackers
 
 target_link_libraries(libtrackers
     PUBLIC
-        core_utils
-        core_interfaces
+        libutils
         libvision_toolkit
-        libfactory
     PRIVATE
         ${OpenCV_LIBS}
         yaml-cpp

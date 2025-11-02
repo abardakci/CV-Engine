@@ -1,5 +1,6 @@
 #include "engine_factory.hpp"
-#include "engine.hpp"
+#include "engine_interface.hpp"
+#include "tensorrt/engine.hpp"
 
 std::unique_ptr<IEngine> EngineFactory::create(EngineType engine_type)
 {

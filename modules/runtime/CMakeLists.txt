@@ -1,10 +1,7 @@
+file(GLOB SRC "src/*.cpp")
+
 add_library(libruntime STATIC
-    draw.cpp
-    draw.hpp
-    yolo_runner.cpp
-    yolo_runner.hpp
-    tracker_runner.cpp
-    tracker_runner.hpp
+    ${SRC}
 )
 
 find_package(OpenCV REQUIRED)
@@ -18,8 +15,6 @@ target_link_libraries(libruntime
     PRIVATE
         ${OpenCV_LIBS}
         libdetection
-        libfactory
-        libkalman_filter
-        libtrackers
-        libupscaler
+        libutils
+        libvision_toolkit
 )
