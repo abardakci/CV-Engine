@@ -1,8 +1,3 @@
-cmake_policy(SET CMP0079 NEW)
-
-### Collect backend libs
-set(ALLOCATOR_BACKENDS "")
-
 ### lib: allocator_interface
 add_library(allocator_interface INTERFACE)
 target_sources(allocator_interface
@@ -11,6 +6,9 @@ target_sources(allocator_interface
         ${CMAKE_CURRENT_SOURCE_DIR}/src/allocator_factory.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/allocator_interface.hpp
 )
+
+### Collect backend libs
+set(ALLOCATOR_BACKENDS "")
 
 ### lib: liballoc_cuda
 option(ENABLE_CUDA "Enable CUDA backend" ON)
@@ -38,6 +36,7 @@ add_library(liballoc STATIC
     "src/allocator_factory.cpp"    
     "src/allocator_factory.hpp"    
 )
+
 target_link_libraries(liballoc
     PUBLIC
         allocator_interface    

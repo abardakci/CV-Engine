@@ -1,6 +1,6 @@
-#include "cuda_buffer.hpp"
+#include "buffer.hpp"
 
-CudaBuffer::CudaBuffer(CudaBuffer &&other) noexcept
+Buffer::Buffer(Buffer &&other) noexcept
     : d_data_(other.d_data_), h_data_(other.h_data_), size_(other.size_), allocator_(std::move(other.allocator_))
 {
     other.d_data_ = nullptr;
@@ -8,7 +8,7 @@ CudaBuffer::CudaBuffer(CudaBuffer &&other) noexcept
     other.size_ = 0;
 }
 
-CudaBuffer &CudaBuffer::operator=(CudaBuffer &&other) noexcept
+Buffer &Buffer::operator=(Buffer &&other) noexcept
 {
     if (this != &other)
     {
@@ -21,12 +21,12 @@ CudaBuffer &CudaBuffer::operator=(CudaBuffer &&other) noexcept
     }
 }
 
-void CudaBuffer::setAllocator(std::shared_ptr<IAllocatorBase> allocator)
+void Buffer::setAllocator(std::shared_ptr<IAllocatorBase> allocator)
 {
     allocator_ = allocator;
 }
 
-CudaBuffer::~CudaBuffer()
+Buffer::~Buffer()
 {
     if (d_data_)
         allocator_->free(d_data_);
@@ -34,7 +34,7 @@ CudaBuffer::~CudaBuffer()
         allocator_->free_host(h_data_);
 }
 
-void CudaBuffer::allocate(size_t size)
+void Buffer::allocate(size_t size)
 {
     size_ = size;
     allocator_->allocate((void **)&d_data_, size_);

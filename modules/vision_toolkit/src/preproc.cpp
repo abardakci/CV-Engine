@@ -1,4 +1,4 @@
-#include "vision_toolkit/preproc.hpp"
+#include "preproc.hpp"
 #include <opencv2/opencv.hpp>
 
 void letterbox(ImageWrapper input, unsigned char* output_buffer, letterbox_t &letter, int target_width, int target_height)

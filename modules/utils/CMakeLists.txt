@@ -1,4 +1,4 @@
-file(GLOB SRC "src/*.cpp")
+file(GLOB SRC "src/*.cpp" "src/*.hpp")
 
 add_library(libutils STATIC
     ${SRC}
@@ -6,5 +6,5 @@ add_library(libutils STATIC
 
 target_include_directories(libutils 
     PUBLIC 
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )

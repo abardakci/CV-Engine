@@ -1,4 +1,4 @@
-#include "utils/file_io.hpp"
+#include "file_io.hpp"
 
 std::vector<char> load_binary_file(const std::string &path)
 {

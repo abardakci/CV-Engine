@@ -1,16 +1,16 @@
 #pragma once
 
 #include <NvInfer.h>
-#include "cuda_runtime_api.h"
+#include <cuda_runtime_api.h>
 
 #include <vector>
 #include <string>
 #include <array>
 #include <format>
 
-#include "dnn/engine_interface.hpp"
-#include "helpers.hpp"
-#include "logger.hpp"
+#include "engine_interface.hpp"
+#include "trt_helpers.hpp"
+#include "trt_logger.hpp"
 #include "file_io.hpp"
 #include "tensor.hpp"
 #include "tensor_factory.hpp"

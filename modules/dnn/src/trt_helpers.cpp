@@ -1,4 +1,4 @@
-#include "helpers.hpp"
+#include "trt_helpers.hpp"
 
 nvinfer1::IRuntime* create_runtime(Logger &logger)
 {
@@ -20,21 +20,4 @@ nvinfer1::ICudaEngine* create_engine(nvinfer1::IRuntime* runtime, const std::str
 nvinfer1::IExecutionContext* create_ctx(nvinfer1::ICudaEngine *engine)
 {
     return engine->createExecutionContext();
-}
-
-size_t calc_elem_size(nvinfer1::Dims dims)
-{
-    size_t size = 1;
-    for (int i = 0; i < dims.nbDims; ++i)
-    {
-        const int dim = dims.d[i];
-        if (dim == 0)
-            continue;
-        if (dim == -1)
-            return -1;
-
-        size *= dims.d[i];
-    }
-
-    return size;
 }

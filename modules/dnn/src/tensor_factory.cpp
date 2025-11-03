@@ -1,9 +1,24 @@
 #include "tensor_factory.hpp"
 
-Tensor TensorFactory::create(nvinfer1::ICudaEngine *engine, std::shared_ptr<IAllocatorBase> allocator, int index)
+#include <NvInfer.h>
+
+Tensor TensorFactory::create(void *engine, std::shared_ptr<IAllocatorBase> allocator, int index)
 {
-    const char *name = engine->getIOTensorName(index);
-    nvinfer1::TensorIOMode mode = engine->getTensorIOMode(name);
-    auto dims = engine->getTensorShape(name);
-    return Tensor(index, name, mode, dims, allocator);
+    auto _engine = static_cast<nvinfer1::ICudaEngine*>(engine);
+
+    const char *name = _engine->getIOTensorName(index);
+    nvinfer1::TensorIOMode mode = _engine->getTensorIOMode(name);
+
+    tensor::IOMode _mode;
+    if (mode == nvinfer1::TensorIOMode::kINPUT) _mode = tensor::IOMode::InputTensor;
+    else if (mode == nvinfer1::TensorIOMode::kOUTPUT) _mode = tensor::IOMode::OutputTensor;
+
+    auto dims = _engine->getTensorShape(name);
+    tensor::Dims _dims;
+    for (int i = 0; i < dims.nbDims; ++i)
+    {
+        _dims.d[i] = dims.d[i];
+    }
+
+    return Tensor(index, name, _mode, _dims, allocator);
 }

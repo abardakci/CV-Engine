@@ -1,4 +1,4 @@
-#include "engine.hpp"
+#include "trt_engine.hpp"
 
 using namespace nvinfer1;
 
@@ -22,11 +22,11 @@ void TrtEngine::init(const std::string &path)
     for (int i = 0; i < engine_->getNbIOTensors(); ++i)
     {
         const char *name = engine_->getIOTensorName(i);
-        TensorIOMode mode = engine_->getTensorIOMode(name);
-        if (mode == TensorIOMode::kINPUT)
+        nvinfer1::TensorIOMode mode = engine_->getTensorIOMode(name);
+        if (mode == nvinfer1::TensorIOMode::kINPUT)
             input_ = tensorFactory.create(engine_.get(), allocator_, i);
 
-        else if (mode == TensorIOMode::kOUTPUT)
+        else if (mode == nvinfer1::TensorIOMode::kOUTPUT)
             output_ = tensorFactory.create(engine_.get(), allocator_, i);
     }
 

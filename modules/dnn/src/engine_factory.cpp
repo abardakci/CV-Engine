@@ -1,6 +1,6 @@
 #include "engine_factory.hpp"
-#include "engine_interface.hpp"
-#include "tensorrt/engine.hpp"
+
+#include "trt_engine.hpp"
 
 std::unique_ptr<IEngine> EngineFactory::create(EngineType engine_type)
 {
@@ -11,6 +11,7 @@ std::unique_ptr<IEngine> EngineFactory::create(EngineType engine_type)
 
     case EngineType::OnnxRuntime:
         throw std::runtime_error("OnnxRuntime engine not implemented yet");
+        
     default:
         throw std::invalid_argument("Unknown EngineType");
     }

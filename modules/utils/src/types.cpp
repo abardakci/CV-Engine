@@ -1,8 +1,4 @@
-#include "utils/types.hpp"
-
-// ---------------------------------------
-// Box Class Implementation
-// ---------------------------------------
+#include "types.hpp"
 
 Box::Box(float x1, float y1, float x2, float y2, int class_id, float conf_score)
 {

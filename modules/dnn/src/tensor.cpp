@@ -1,9 +1,24 @@
 #include "tensor.hpp"
 
-using namespace nvinfer1;
+static size_t calc_elem_size(tensor::Dims dims)
+{
+    size_t size = 1;
+    for (int i = 0; i < dims.d.size(); ++i)
+    {
+        const int dim = dims.d[i];
+        if (dim == 0)
+            continue;
+        if (dim == -1)
+            return -1;
 
-Tensor::Tensor(int index, std::string name, nvinfer1::TensorIOMode mode, nvinfer1::Dims dimensions, std::shared_ptr<IAllocatorBase> allocator)
-    : index_(index), name_(name), io_mode_(mode), dims_(dimensions), allocator_(allocator)
+        size *= dim;
+    }
+
+    return size;
+}
+
+Tensor::Tensor(int index, std::string name, tensor::IOMode mode, tensor::Dims dims, std::shared_ptr<IAllocatorBase> allocator)
+    : index_(index), name_(name), io_mode_(mode), dims_(dims), allocator_(allocator)
 {
     elem_size_ = calc_elem_size(dims_);
     buffer_.allocator_ = allocator;

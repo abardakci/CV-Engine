@@ -1,20 +1,20 @@
 #pragma once
 
-#include "base_factory.hpp"
+#include "allocator_factory.hpp"
 
-class CudaBuffer
+class Buffer
 {
 public:
-    CudaBuffer(); 
-    ~CudaBuffer();
+    Buffer() = default;
+    ~Buffer();
 
     // Non-copyable
-    CudaBuffer(const CudaBuffer &) = delete;
-    CudaBuffer &operator=(const CudaBuffer &) = delete;
+    Buffer(const Buffer &) = delete;
+    Buffer &operator=(const Buffer &) = delete;
 
     // Non-Movable for now
-    CudaBuffer(CudaBuffer &&other) noexcept;
-    CudaBuffer &operator=(CudaBuffer &&) noexcept;
+    Buffer(Buffer &&other) noexcept;
+    Buffer &operator=(Buffer &&) noexcept;
 
     void setAllocator(std::shared_ptr<IAllocatorBase> allocator);
     void allocate(size_t size);

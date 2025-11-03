@@ -1,18 +1,22 @@
-# Base interfaces
-add_library(base_dnn INTERFACE)
-target_include_directories(base_dnn INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+add_library(dnn_interface INTERFACE)
+target_sources(dnn_interface
+    INTERFACE
+        "src/engine_interface.hpp"
+        "src/engine_factory.hpp"
+)
 
-# Options to enable/disable backends
-option(ENABLE_CUDA "Enable CUDA backend" ON)
 
 # Collect backends
 set(DNN_BACKENDS "")
 
-if (ENABLE_TRT)
-    file(GLOB SRC "src/*.cpp")
-
-    add_library(libtrt_backend STATIC
-        ${SRC}
+option(ENABLE_TENSORRT "Enable TensorRT backend" ON)
+if (ENABLE_TENSORRT)
+    add_library(libtrt STATIC
+        "src/trt_engine.cpp"
+        "src/trt_engine.hpp"
+        "src/trt_helpers.cpp"
+        "src/trt_helpers.hpp"
+        "src/trt_logger.hpp"
     )
 
     find_package(CUDAToolkit REQUIRED)
@@ -25,24 +29,45 @@ if (ENABLE_TRT)
         /usr/lib/x86_64-linux-gnu/libnvinfer_lean.so.10.10.0
     )
 
-    target_include_directories(libtrt_backend
+    target_include_directories(libtrt
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}
             ${TRT_INCLUDES}
     )
 
-    target_link_libraries(libtrt_backend 
+    target_link_libraries(libtrt
         PUBLIC
             CUDA::cudart
             ${TRT_LIBS}
             liballoc
             libutils
+            dnn_interface
     )
 
-    list(APPEND DNN_BACKENDS libtrt_backend)
+    list(APPEND DNN_BACKENDS libtrt)
 endif()
 
-add_library(forge_dnn INTERFACE)
-target_include_directories(forge_dnn INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(forge_dnn INTERFACE ${DNN_BACKENDS} base_dnn)
 
+add_library(libdnn STATIC 
+    "src/buffer.cpp"
+    "src/buffer.hpp"
+    "src/engine_factory.cpp"
+    "src/engine_factory.hpp"
+    "src/tensor.cpp"
+    "src/tensor.hpp"
+    "src/tensor_factory.cpp"
+    "src/tensor_factory.hpp"
+)
+
+target_link_libraries(libdnn 
+    PRIVATE
+        ${DNN_BACKENDS}
+    PUBLIC
+        dnn_interface
+        libutils        
+)
+
+target_include_directories(libdnn
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
