@@ -1,4 +1,5 @@
-#include "detection/yolo_inference.hpp"
+#include "yolo_inference.hpp"
+#include "engine_interface.hpp"
 
 Yolov8::Yolov8(const YoloConfig &cfg, std::unique_ptr<IEngine> engine)
     : cfg_(cfg), engine_(std::move(engine))
@@ -18,7 +19,7 @@ Yolov8::Yolov8(const YoloConfig &cfg, std::unique_ptr<IEngine> engine)
 
     // Total output tensor size = total cells × predictions per cell
     output_size_ = output_cell_count_ * preds_per_cell_;
-    preproc_buffer_ = new unsigned char[input_size_];
+    preproc_buffer_.reserve(input_size_);
 }
 
 std::vector<Box> Yolov8::infer(const cv::Mat &input)
@@ -53,10 +54,10 @@ cv::Mat Yolov8::preprocess(const cv::Mat &input, letterbox_t &letter)
     img_wrapper.width = input.cols;
     img_wrapper.height = input.rows;
     img_wrapper.channels = input.channels();
-    letterbox(img_wrapper, preproc_buffer_, letter, cfg_.input_width, cfg_.input_height);
+    letterbox(img_wrapper, preproc_buffer_.data(), letter, cfg_.input_width, cfg_.input_height);
 
     // nhwc to nchw
-    cv::Mat tensor = cv::dnn::blobFromImage(cv::Mat(cv::Size(cfg_.input_width, cfg_.input_height), CV_8UC3, preproc_buffer_),
+    cv::Mat tensor = cv::dnn::blobFromImage(cv::Mat(cv::Size(cfg_.input_width, cfg_.input_height), CV_8UC3, preproc_buffer_.data()),
                                             1.0 / 255.0,
                                             cv::Size(),
                                             cv::Scalar(),

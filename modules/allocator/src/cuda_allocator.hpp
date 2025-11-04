@@ -22,25 +22,12 @@ struct backend::Traits<backend::Tag::CUDA>
 class CudaAllocator : public BaseAllocator<CudaAllocator, backend::Tag::CUDA>
 {
 public:
-    CudaAllocator()
-    {
-        cudaStreamCreate(&cudaStream_);
-    }
-
-    ~CudaAllocator()
-    {
-        cudaStreamDestroy(cudaStream_);
-    }
-
     void allocate_impl(void **ptr, size_t bytes);
     void allocate_host_impl(void **ptr, size_t bytes);
     void free_impl(void *ptr);
     void free_host_impl(void *ptr);
     void memcpy_impl(void *dst, void *src, size_t bytes, CopyMode copy_mode);
     void memcpy_async_impl(void *dst, void *src, size_t bytes, CopyMode copy_mode);
-
-public:
-    cudaStream_t cudaStream_;
 
 private:
     inline static cudaMemcpyKind to_cuda_copy_mode(CopyMode copy_mode)

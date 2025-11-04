@@ -1,9 +1,32 @@
 add_library(dnn_interface INTERFACE)
-target_sources(dnn_interface
+target_include_directories(dnn_interface 
     INTERFACE
-        "src/engine_interface.hpp"
-        "src/engine_factory.hpp"
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
+
+
+
+add_library(dnn_common STATIC 
+    "src/buffer.cpp"
+    "src/buffer.hpp"
+    "src/engine_factory.hpp"
+    "src/tensor.cpp"
+    "src/tensor.hpp"
+    "src/tensor_factory.hpp"
+)
+
+target_link_libraries(dnn_common 
+    PUBLIC
+        dnn_interface
+        libutils
+        liballoc
+)
+
+target_include_directories(dnn_common
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
 
 
 # Collect backends
@@ -17,6 +40,8 @@ if (ENABLE_TENSORRT)
         "src/trt_helpers.cpp"
         "src/trt_helpers.hpp"
         "src/trt_logger.hpp"
+        "src/engine_factory.cpp"
+        "src/tensor_factory.cpp"
     )
 
     find_package(CUDAToolkit REQUIRED)
@@ -42,32 +67,28 @@ if (ENABLE_TENSORRT)
             liballoc
             libutils
             dnn_interface
+            dnn_common
     )
 
     list(APPEND DNN_BACKENDS libtrt)
 endif()
 
 
-add_library(libdnn STATIC 
-    "src/buffer.cpp"
-    "src/buffer.hpp"
-    "src/engine_factory.cpp"
-    "src/engine_factory.hpp"
-    "src/tensor.cpp"
-    "src/tensor.hpp"
-    "src/tensor_factory.cpp"
-    "src/tensor_factory.hpp"
-)
 
-target_link_libraries(libdnn 
-    PRIVATE
-        ${DNN_BACKENDS}
-    PUBLIC
-        dnn_interface
-        libutils        
-)
+add_library(libdnn STATIC)
 
+# PUBLIC include path
 target_include_directories(libdnn
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
+
+# PUBLIC: herkes sees dnn_interface + common API
+target_link_libraries(libdnn
+    PUBLIC
+        dnn_interface
+        dnn_common
+    PRIVATE
+        ${DNN_BACKENDS}      # ✅ backend'ler içte saklanır
+)
+

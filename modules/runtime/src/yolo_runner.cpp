@@ -1,9 +1,10 @@
-#include "runtime/yolo_runner.hpp"
+#include "yolo_runner.hpp"
 
-#include "detection/yolo_inference.hpp"
-#include "detection/yolo_cfg.hpp"
-#include "utils/timer.hpp"
-#include "runtime/draw.hpp"
+#include "yolo_inference.hpp"
+#include "engine_factory.hpp"
+#include "yolo_cfg.hpp"
+#include "timer.hpp"
+#include "draw.hpp"
 
 #include <filesystem>
 #include <iostream>
@@ -14,7 +15,6 @@ using namespace std;
 
 int run(int argc, char **argv)
 {
-    dbg::cv_mat_flags_info(0);
     std::string video_path;
     bool use_fp16 = false;
 
@@ -57,7 +57,7 @@ int run(int argc, char **argv)
         return -1;
     }
     
-    std::unique_ptr<IEngine> engine = EngineFactory().create(EngineType::TensorRT);
+    auto engine = EngineFactory().create(EngineType::TensorRT);
     Yolov8 yolo(cfg, std::move(engine));
 
     // Main loop

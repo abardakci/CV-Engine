@@ -5,10 +5,12 @@
 #include <opencv2/opencv.hpp>
 
 #include "yolo_cfg.hpp"
-#include "utils/types.hpp"
-#include "utils/timer.hpp"
-#include "vision_toolkit/postproc.hpp"
-#include "vision_toolkit/preproc.hpp"
+#include "types.hpp"
+#include "timer.hpp"
+#include "postproc.hpp"
+#include "preproc.hpp"
+
+class IEngine; // forward declaration
 
 class Yolov8
 {
@@ -27,5 +29,5 @@ private:
     size_t output_size_;
     size_t preds_per_cell_;
     size_t output_cell_count_;
-    unsigned char* preproc_buffer_;
+    std::vector<unsigned char> preproc_buffer_;
 };

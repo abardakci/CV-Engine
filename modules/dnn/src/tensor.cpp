@@ -18,7 +18,11 @@ static size_t calc_elem_size(tensor::Dims dims)
 }
 
 Tensor::Tensor(int index, std::string name, tensor::IOMode mode, tensor::Dims dims, std::shared_ptr<IAllocatorBase> allocator)
-    : index_(index), name_(name), io_mode_(mode), dims_(dims), allocator_(allocator)
+    : index_(index),
+      name_(std::move(name)),
+      io_mode_(mode),
+      dims_(dims),
+      allocator_(allocator)
 {
     elem_size_ = calc_elem_size(dims_);
     buffer_.allocator_ = allocator;
@@ -31,7 +35,8 @@ Tensor::Tensor(Tensor &&other) noexcept
       io_mode_(other.io_mode_),
       dims_(other.dims_),
       elem_size_(other.elem_size_),
-      buffer_(std::move(other.buffer_))  // move CudaBuffer
+      allocator_(std::move(other.allocator_)),
+      buffer_(std::move(other.buffer_)) // move CudaBuffer
 {
     other.index_ = -1;
     other.elem_size_ = 0;
@@ -46,11 +51,12 @@ Tensor &Tensor::operator=(Tensor &&other) noexcept
         io_mode_ = other.io_mode_;
         dims_ = other.dims_;
         elem_size_ = other.elem_size_;
-        buffer_ = std::move(other.buffer_);  // move CudaBuffer
+        buffer_ = std::move(other.buffer_); // move CudaBuffer
+        allocator_ = std::move(other.allocator_);
 
         other.index_ = -1;
         other.elem_size_ = 0;
     }
-    
+
     return *this;
 }

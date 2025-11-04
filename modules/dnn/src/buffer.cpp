@@ -1,7 +1,10 @@
 #include "buffer.hpp"
 
 Buffer::Buffer(Buffer &&other) noexcept
-    : d_data_(other.d_data_), h_data_(other.h_data_), size_(other.size_), allocator_(std::move(other.allocator_))
+    : d_data_(other.d_data_),
+      h_data_(other.h_data_),
+      size_(other.size_),
+      allocator_(std::move(other.allocator_))
 {
     other.d_data_ = nullptr;
     other.h_data_ = nullptr;
@@ -15,10 +18,14 @@ Buffer &Buffer::operator=(Buffer &&other) noexcept
         d_data_ = other.d_data_;
         h_data_ = other.h_data_;
         size_ = other.size_;
+        allocator_ = std::move(other.allocator_);
+
         other.d_data_ = nullptr;
         other.h_data_ = nullptr;
         other.size_ = 0;
     }
+
+    return *this;
 }
 
 void Buffer::setAllocator(std::shared_ptr<IAllocatorBase> allocator)

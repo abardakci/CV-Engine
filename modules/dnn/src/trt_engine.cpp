@@ -5,7 +5,7 @@ using namespace nvinfer1;
 Logger gLogger;
 TensorFactory tensorFactory;
 
-TrtEngine::~TrtEngine() {}
+TrtEngine::~TrtEngine() { cudaStreamDestroy(stream_); }
 
 void TrtEngine::init(const std::string &path)
 {
@@ -32,11 +32,13 @@ void TrtEngine::init(const std::string &path)
 
     ctx_->setInputTensorAddress(input_.name_.c_str(), input_.buffer_.d_data_);
     ctx_->setOutputTensorAddress(output_.name_.c_str(), output_.buffer_.d_data_);
+
+    cudaStreamCreate(&stream_);
 }
 
 void TrtEngine::set_input(const float *input)
 {
-    allocator_->memcpy_async(input_.buffer_.h_data_, (void *)input, input_.buffer_.size_ * sizeof(float), backend::CopyMode::HostToHost);
+    allocator_->memcpy(input_.buffer_.h_data_, (void *)input, input_.buffer_.size_, backend::CopyMode::HostToHost);
 }
 
 float *TrtEngine::get_output()
@@ -48,7 +50,7 @@ bool TrtEngine::infer()
 {
     bool success;
 
-    allocator_->memcpy_async(input_.buffer_.d_data_, input_.buffer_.h_data_, input_.buffer_.size_, backend::CopyMode::HostToDevice);
+    allocator_->memcpy(input_.buffer_.d_data_, input_.buffer_.h_data_, input_.buffer_.size_, backend::CopyMode::HostToDevice);
 
     success = ctx_->enqueueV3(stream_);
     if (!success)
@@ -57,7 +59,7 @@ bool TrtEngine::infer()
         return false;
     }
 
-    allocator_->memcpy_async(output_.buffer_.h_data_, output_.buffer_.d_data_, input_.buffer_.size_, backend::CopyMode::DeviceToHost);
+    allocator_->memcpy(output_.buffer_.h_data_, output_.buffer_.d_data_, output_.buffer_.size_, backend::CopyMode::DeviceToHost);
     cudaStreamSynchronize(stream_);
 
     return true;

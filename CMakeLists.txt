@@ -10,10 +10,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ----------------------------------------
 add_subdirectory(modules/utils)          # libutils
 add_subdirectory(modules/vision_toolkit) # libvision_toolkit
-add_subdirectory(modules/dnn)            # libdnn
-add_subdirectory(modules/detection)      # libdetection
-add_subdirectory(modules/runtime)        # libruntime
 add_subdirectory(modules/allocator)      # liballoc
+add_subdirectory(modules/dnn)            # libdnn
+add_subdirectory(modules/vision)      # libdetection
+add_subdirectory(modules/runtime)        # libruntime
 
 # ----------------------------------------
 # Executable target: Object Detector

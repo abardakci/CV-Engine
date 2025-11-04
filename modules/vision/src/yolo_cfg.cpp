@@ -1,4 +1,4 @@
-#include "detection/yolo_cfg.hpp"
+#include "yolo_cfg.hpp"
 #include <yaml-cpp/yaml.h>
 
 YoloConfig loadYoloConfig(const std::string &config_path)
