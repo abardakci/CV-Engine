@@ -6,17 +6,15 @@ Upscaler::Upscaler(std::unique_ptr<IEngine> engine, const std::string& engine_pa
     engine_->init(engine_path);
 }
 
-cv::Mat Upscaler::run(const cv::Mat &input)
+cv::Mat Upscaler::run(cv::Mat &input)
 {
     auto ten = preproc(input);
-    
     engine_->set_input(ten.ptr<float>());
     engine_->infer();
     float* buf = engine_->get_output(); 
-
 }
 
-cv::Mat Upscaler::preproc(const cv::Mat &mat)
+cv::Mat Upscaler::preproc(cv::Mat &mat)
 {
     CV_Assert(mat.type() == CV_8UC3 && mat.isContinuous());
 
@@ -32,7 +30,7 @@ cv::Mat Upscaler::preproc(const cv::Mat &mat)
     return tensor;
 }
 
-cv::Mat Upscaler::postproc(const cv::Mat &tensor)
+cv::Mat Upscaler::postproc(cv::Mat &tensor)
 {
     // tensor: 1x3xHxW, CV_32F
     CV_Assert(tensor.type() == CV_32F);
@@ -47,7 +45,7 @@ cv::Mat Upscaler::postproc(const cv::Mat &tensor)
     std::vector<cv::Mat> ch(3);
     for (int c = 0; c < 3; c++)
     {
-        ch[c] = cv::Mat(cv::Size(height, width), CV_32F, tensor.ptr<float>(0, c));
+        ch[c] = cv::Mat(height, width, CV_32F, (float*)tensor.ptr<float>(0, c));
     }
 
     // CHW -> HWC
