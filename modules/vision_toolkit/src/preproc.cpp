@@ -1,7 +1,7 @@
 #include "preproc.hpp"
 #include <opencv2/opencv.hpp>
 
-void letterbox(ImageWrapper input, unsigned char* output_buffer, letterbox_t &letter, int target_width, int target_height)
+void letterbox(forge::Image input, unsigned char *output_buffer, forge::letterbox_t &letter, int target_width, int target_height)
 {
     if (input.width == target_width && input.height == target_height)
     {

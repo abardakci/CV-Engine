@@ -9,8 +9,7 @@ TrtEngine::~TrtEngine() { cudaStreamDestroy(stream_); }
 
 void TrtEngine::init(const std::string &path)
 {
-    if (initialized_)
-        return;
+    if (initialized_) return;
     initialized_ = true;
 
     // Create engine & context
@@ -38,7 +37,7 @@ void TrtEngine::init(const std::string &path)
 
 void TrtEngine::set_input(const float *input)
 {
-    allocator_->memcpy(input_.buffer_.h_data_, (void *)input, input_.buffer_.size_, backend::CopyMode::HostToHost);
+    allocator_->memcpy_async(input_.buffer_.h_data_, (void *)input, input_.buffer_.size_, backend::CopyMode::HostToHost, stream_);
 }
 
 float *TrtEngine::get_output()

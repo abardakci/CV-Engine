@@ -27,7 +27,7 @@ public:
     void free_impl(void *ptr);
     void free_host_impl(void *ptr);
     void memcpy_impl(void *dst, void *src, size_t bytes, CopyMode copy_mode);
-    void memcpy_async_impl(void *dst, void *src, size_t bytes, CopyMode copy_mode);
+    void memcpy_async_impl(void *dst, void *src, size_t bytes, CopyMode copy_mode, backend::StreamHandle stream);
 
 private:
     inline static cudaMemcpyKind to_cuda_copy_mode(CopyMode copy_mode)

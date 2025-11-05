@@ -36,8 +36,8 @@ public:
         static_cast<Derived *>(this)->memcpy_impl(dst, src, bytes, copy_mode);
     }
 
-    void memcpy_async(void *dst, void *src, size_t bytes, CopyMode copy_mode) override
+    void memcpy_async(void *dst, void *src, size_t bytes, CopyMode copy_mode, backend::StreamHandle stream) override
     {
-        static_cast<Derived *>(this)->memcpy_async_impl(dst, src, bytes, copy_mode);
+        static_cast<Derived *>(this)->memcpy_async_impl(dst, src, bytes, copy_mode, stream);
     }
 };
