@@ -1,6 +1,6 @@
 #include "postproc.hpp"
 
-float iou(const Box &b1, const Box &b2)
+float iou(const forge::Box &b1, const forge::Box &b2)
 {
     if (b1.xyxy_.x1 > b2.xyxy_.x2 || b1.xyxy_.x2 < b2.xyxy_.x1 ||
         b1.xyxy_.y1 > b2.xyxy_.y2 || b1.xyxy_.y2 < b2.xyxy_.y1)
@@ -31,17 +31,17 @@ float iou(const Box &b1, const Box &b2)
     return static_cast<float>(inter_area) / static_cast<float>(union_area);
 }
 
-static bool bbox_comparator(const Box &b1, const Box &b2)
+static bool bbox_comparator(const forge::Box &b1, const forge::Box &b2)
 {
     return b1.conf_score_ > b2.conf_score_;
 }
 
-void nms(std::vector<Box> &bboxes, float iou_threshold, bool is_sorted)
+void nms(std::vector<forge::Box> &bboxes, float iou_threshold, bool is_sorted)
 {
     if (!is_sorted)
         std::sort(bboxes.begin(), bboxes.end(), bbox_comparator);
 
-    std::vector<Box> result_boxes;
+    std::vector<forge::Box> result_boxes;
     std::vector<bool> suppressed(bboxes.size(), false);
 
     for (int i = 0; i < bboxes.size(); ++i)

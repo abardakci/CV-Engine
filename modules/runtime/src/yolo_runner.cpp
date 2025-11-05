@@ -1,8 +1,8 @@
 #include "yolo_runner.hpp"
 
-#include "yolo_inference.hpp"
+#include "yolo/yolo_inference.hpp"
+#include "yolo/yolo_cfg.hpp"
 #include "engine_factory.hpp"
-#include "yolo_cfg.hpp"
 #include "timer.hpp"
 #include "draw.hpp"
 
@@ -12,6 +12,7 @@
 #include <format>
 
 using namespace std;
+using namespace forge;
 
 int run(int argc, char **argv)
 {

@@ -22,10 +22,10 @@ Yolov8::Yolov8(const YoloConfig &cfg, std::unique_ptr<IEngine> engine)
     preproc_buffer_.reserve(input_size_);
 }
 
-std::vector<Box> Yolov8::infer(const cv::Mat &input)
+std::vector<forge::Box> Yolov8::infer(const cv::Mat &input)
 {
     // Preprocess
-    letterbox_t letter = {0, 0, 1.0f};
+    forge::letterbox_t letter = {0, 0, 1.0f};
     cv::Mat input_blob = preprocess(input, letter);
     CV_Assert(input_blob.type() == CV_32FC1 && input_blob.isContinuous());
 
@@ -37,7 +37,7 @@ std::vector<Box> Yolov8::infer(const cv::Mat &input)
     float *output_buf = (float *)engine_->get_output();
     
     // Postprocess
-    std::vector<Box> detections = postprocess(cv::Mat(preds_per_cell_, output_cell_count_, CV_32F, output_buf),
+    std::vector<forge::Box> detections = postprocess(cv::Mat(preds_per_cell_, output_cell_count_, CV_32F, output_buf),
                                               letter,
                                               input.rows,
                                               input.cols);
@@ -46,15 +46,15 @@ std::vector<Box> Yolov8::infer(const cv::Mat &input)
     return detections;
 }
 
-cv::Mat Yolov8::preprocess(const cv::Mat &input, letterbox_t &letter)
+cv::Mat Yolov8::preprocess(const cv::Mat &input, forge::letterbox_t &letter)
 {
     // resize & padding if necessary
-    ImageWrapper img_wrapper;
-    img_wrapper.data = input.data;
-    img_wrapper.width = input.cols;
-    img_wrapper.height = input.rows;
-    img_wrapper.channels = input.channels();
-    letterbox(img_wrapper, preproc_buffer_.data(), letter, cfg_.input_width, cfg_.input_height);
+    forge::Image img;
+    img.data = input.data;
+    img.width = input.cols;
+    img.height = input.rows;
+    img.channels = input.channels();
+    letterbox(img, preproc_buffer_.data(), letter, cfg_.input_width, cfg_.input_height);
 
     // nhwc to nchw
     cv::Mat tensor = cv::dnn::blobFromImage(cv::Mat(cv::Size(cfg_.input_width, cfg_.input_height), CV_8UC3, preproc_buffer_.data()),
@@ -67,9 +67,9 @@ cv::Mat Yolov8::preprocess(const cv::Mat &input, letterbox_t &letter)
     return tensor;
 }
 
-std::vector<Box> Yolov8::postprocess(const cv::Mat &yolo_output, letterbox_t &letter, int image_h, int image_w)
+std::vector<forge::Box> Yolov8::postprocess(const cv::Mat &yolo_output, forge::letterbox_t &letter, int image_h, int image_w)
 {
-    std::vector<Box> output_boxes;
+    std::vector<forge::Box> output_boxes;
     output_boxes.reserve(100);
 
     cv::Mat yolo_outputT;

@@ -5,4 +5,7 @@
 #include <fstream>
 #include <iostream>
 
-std::vector<char> load_binary_file(const std::string& path);
+namespace forge
+{
+    std::vector<char> load_binary_file(const std::string &path);
+}

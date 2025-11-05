@@ -18,9 +18,9 @@ public:
     Yolov8(const YoloConfig &cfg, std::unique_ptr<IEngine> engine);
     ~Yolov8() = default;
 
-    cv::Mat preprocess(const cv::Mat &input, letterbox_t &letter);
-    std::vector<Box> infer(const cv::Mat &input);
-    std::vector<Box> postprocess(const cv::Mat &yolo_output, letterbox_t &letter, int h, int w);
+    cv::Mat preprocess(const cv::Mat &input, forge::letterbox_t &letter);
+    std::vector<forge::Box> infer(const cv::Mat &input);
+    std::vector<forge::Box> postprocess(const cv::Mat &yolo_output, forge::letterbox_t &letter, int h, int w);
 
 private:
     YoloConfig cfg_;

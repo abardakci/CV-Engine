@@ -1,6 +1,6 @@
 #include "draw.hpp"
 
-void drawBox(cv::Mat &target, const Box &box, const std::string& text)
+void drawBox(cv::Mat &target, const forge::Box &box, const std::string& text)
 {
     // Renk ve font
     const cv::Scalar color(0, 120, 0);

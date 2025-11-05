@@ -2,4 +2,4 @@
 
 #include "types.hpp"
 
-void letterbox(ImageWrapper input, unsigned char *output_buffer, letterbox_t &letter, int target_width, int target_height);
+void letterbox(forge::Image input, unsigned char *output_buffer, forge::letterbox_t &letter, int target_width, int target_height);

@@ -12,7 +12,7 @@ nvinfer1::ICudaEngine* deserialize_engine(nvinfer1::IRuntime *runtime, const std
 
 nvinfer1::ICudaEngine* create_engine(nvinfer1::IRuntime* runtime, const std::string &model_path)
 {
-    auto file = load_binary_file(model_path);
+    auto file = forge::load_binary_file(model_path);
     nvinfer1::ICudaEngine* engine = deserialize_engine(runtime, file);
     return engine;
 }

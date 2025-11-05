@@ -1,4 +1,4 @@
-file(GLOB SRC "src/*.cpp")
+file(GLOB SRC "src/yolo/**.cpp" "src/yolo/**.hpp")
 
 add_library(libvision STATIC
     ${SRC}
