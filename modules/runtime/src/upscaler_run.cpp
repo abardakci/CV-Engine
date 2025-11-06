@@ -1,4 +1,4 @@
-#include "yolo_runner.hpp"
+#include "upscaler_run.hpp"
 
 #include "upscaler/upscaler.hpp"
 #include "engine_factory.hpp"
@@ -13,7 +13,7 @@
 using namespace std;
 using namespace forge;
 
-int run(int argc, char **argv)
+int run_upscaler(int argc, char **argv)
 {
     std::string video_path;
     std::string engine_path;
@@ -24,7 +24,7 @@ int run(int argc, char **argv)
         if (std::string(argv[i]) == "--video" && i + 1 < argc)
             video_path = argv[++i];
         else if (std::string(argv[i]) == "--engine" && i + 1 < argc)
-            video_path = argv[++i];
+            engine_path = argv[++i];
         else if (std::string(argv[i]) == "--help")
         {
             std::cout << "Usage: " << argv[0] << " [--video <video_path>] [--engine <engine_path>] [--fp16]" << std::endl;
@@ -39,7 +39,7 @@ int run(int argc, char **argv)
         return -1;
     }
     
-    auto engine = EngineFactory().create(EngineType::TensorRT);
+    auto engine = EngineFactory().create(EngineType::TensorRT, ShapeMode::Dynamic);
     Upscaler upscaler(std::move(engine), engine_path);
 
     // Main loop

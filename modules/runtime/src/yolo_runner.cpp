@@ -14,7 +14,7 @@
 using namespace std;
 using namespace forge;
 
-int run(int argc, char **argv)
+int run_yolo(int argc, char **argv)
 {
     std::string video_path;
     bool use_fp16 = false;
@@ -58,7 +58,7 @@ int run(int argc, char **argv)
         return -1;
     }
     
-    auto engine = EngineFactory().create(EngineType::TensorRT);
+    auto engine = EngineFactory().create(EngineType::TensorRT, ShapeMode::Static);
     Yolov8 yolo(cfg, std::move(engine));
 
     // Main loop

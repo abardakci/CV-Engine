@@ -18,15 +18,19 @@
 class TrtEngine : public IEngine
 {
 public:
-    TrtEngine() = default;
+    TrtEngine(ShapeMode mode);
     ~TrtEngine() override;
     TrtEngine &operator=(TrtEngine &) = delete;
     void init(const std::string &path) override;
     void set_input(const float *input) override;
+    void set_input_dynamic(const float *input, std::vector<int> shape, std::vector<int> output_shape) override;
     bool infer() override;
     float *get_output() override;
+    std::vector<int> get_output_dims() const override;
+    void apply_dynamic_shape_if_needed(int b, int c, int h, int w, std::vector<int> output_dims);
 
 private:
+    ShapeMode mode_;
     bool initialized_ = false;
     cudaStream_t stream_;
     std::unique_ptr<nvinfer1::IRuntime> runtime_;

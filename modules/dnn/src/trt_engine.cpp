@@ -5,6 +5,7 @@ using namespace nvinfer1;
 Logger gLogger;
 TensorFactory tensorFactory;
 
+TrtEngine::TrtEngine(ShapeMode mode) : mode_(mode) {};
 TrtEngine::~TrtEngine() { cudaStreamDestroy(stream_); }
 
 void TrtEngine::init(const std::string &path)
@@ -49,8 +50,7 @@ bool TrtEngine::infer()
 {
     bool success;
 
-    allocator_->memcpy(input_.buffer_.d_data_, input_.buffer_.h_data_, input_.buffer_.size_, backend::CopyMode::HostToDevice);
-
+    allocator_->memcpy_async(input_.buffer_.d_data_, input_.buffer_.h_data_, input_.buffer_.size_, backend::CopyMode::HostToDevice, stream_);
     success = ctx_->enqueueV3(stream_);
     if (!success)
     {
@@ -58,7 +58,7 @@ bool TrtEngine::infer()
         return false;
     }
 
-    allocator_->memcpy(output_.buffer_.h_data_, output_.buffer_.d_data_, output_.buffer_.size_, backend::CopyMode::DeviceToHost);
+    allocator_->memcpy_async(output_.buffer_.h_data_, output_.buffer_.d_data_, output_.buffer_.size_, backend::CopyMode::DeviceToHost, stream_);
     cudaStreamSynchronize(stream_);
 
     return true;

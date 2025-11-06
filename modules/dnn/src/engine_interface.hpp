@@ -1,11 +1,18 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 // // FP16 or FP32
 // template <typename T>
 // concept TensorDtype = std::same_as<T, float> || std::same_as<T, uint16_t>;
 // enum class Precision { FP16, FP32 };
+
+enum class ShapeMode
+{
+    Static,
+    Dynamic
+};
 
 class IEngine
 {

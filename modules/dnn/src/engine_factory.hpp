@@ -13,6 +13,6 @@ class EngineFactory
 {
 public:
     ~EngineFactory() = default;
-    std::unique_ptr<IEngine> create(EngineType type);
+    std::unique_ptr<IEngine> create(EngineType type, ShapeMode mode);
 
 };

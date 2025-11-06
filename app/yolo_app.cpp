@@ -4,5 +4,5 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    return run(argc, argv);
+    return run_yolo(argc, argv);
 }
