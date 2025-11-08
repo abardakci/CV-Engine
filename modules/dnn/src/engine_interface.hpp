@@ -20,6 +20,8 @@ public:
     virtual ~IEngine() = default;
     virtual void init(const std::string &engine_path) = 0;
     virtual void set_input(const float *input) = 0;
+    virtual void set_input_dynamic(const float *input, const std::vector<int>& shape) = 0;
     virtual bool infer() = 0;
     virtual float *get_output() = 0;
+    virtual std::vector<int> get_output_dims() const = 0;
 };

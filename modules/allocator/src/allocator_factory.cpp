@@ -3,14 +3,15 @@
 
 #include <memory>
 
-std::unique_ptr<IAllocatorBase> AllocatorFactory::create(backend::Tag tag)
+std::shared_ptr<IAllocatorBase> AllocatorFactory::create(backend::Tag type)
 {
-    switch (tag)
-    {
-    case backend::Tag::CUDA:
-        return std::make_unique<CudaAllocator>();
+    static std::shared_ptr<IAllocatorBase> cuda_singleton = std::make_shared<CudaAllocator>();
 
-    default:
-        break;
+    switch(type)
+    {
+        case backend::Tag::CUDA:
+            return cuda_singleton;
+        default:
+            throw("NOT IMPLEMENTED ERROR");
     }
 }

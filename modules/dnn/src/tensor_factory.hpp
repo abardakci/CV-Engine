@@ -5,7 +5,7 @@
 class TensorFactory
 {
 public:
-    Tensor create(void *engine, std::shared_ptr<IAllocatorBase> allocator, int index);
+    Tensor create(void *engine, backend::Tag backend_tag, int index);
 
 };
 

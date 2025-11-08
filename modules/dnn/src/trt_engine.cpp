@@ -6,11 +6,13 @@ Logger gLogger;
 TensorFactory tensorFactory;
 
 TrtEngine::TrtEngine(ShapeMode mode) : mode_(mode) {};
+
 TrtEngine::~TrtEngine() { cudaStreamDestroy(stream_); }
 
 void TrtEngine::init(const std::string &path)
 {
-    if (initialized_) return;
+    if (initialized_)
+        return;
     initialized_ = true;
 
     // Create engine & context
@@ -24,10 +26,10 @@ void TrtEngine::init(const std::string &path)
         const char *name = engine_->getIOTensorName(i);
         nvinfer1::TensorIOMode mode = engine_->getTensorIOMode(name);
         if (mode == nvinfer1::TensorIOMode::kINPUT)
-            input_ = tensorFactory.create(engine_.get(), allocator_, i);
+            input_ = tensorFactory.create(engine_.get(), backend::Tag::CUDA, i);
 
         else if (mode == nvinfer1::TensorIOMode::kOUTPUT)
-            output_ = tensorFactory.create(engine_.get(), allocator_, i);
+            output_ = tensorFactory.create(engine_.get(), backend::Tag::CUDA, i);
     }
 
     ctx_->setInputTensorAddress(input_.name_.c_str(), input_.buffer_.d_data_);

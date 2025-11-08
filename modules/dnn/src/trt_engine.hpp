@@ -23,11 +23,8 @@ public:
     TrtEngine &operator=(TrtEngine &) = delete;
     void init(const std::string &path) override;
     void set_input(const float *input) override;
-    void set_input_dynamic(const float *input, std::vector<int> shape, std::vector<int> output_shape) override;
     bool infer() override;
     float *get_output() override;
-    std::vector<int> get_output_dims() const override;
-    void apply_dynamic_shape_if_needed(int b, int c, int h, int w, std::vector<int> output_dims);
 
 private:
     ShapeMode mode_;
@@ -36,7 +33,7 @@ private:
     std::unique_ptr<nvinfer1::IRuntime> runtime_;
     std::unique_ptr<nvinfer1::ICudaEngine> engine_;
     std::unique_ptr<nvinfer1::IExecutionContext> ctx_;
-    std::shared_ptr<IAllocatorBase> allocator_ = AllocatorFactory().create(backend::Tag::CUDA);
+    std::shared_ptr<IAllocatorBase> allocator_ = AllocatorFactory::create(backend::Tag::CUDA);
     Tensor input_;
     Tensor output_;
 };

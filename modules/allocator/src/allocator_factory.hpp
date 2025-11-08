@@ -6,5 +6,5 @@
 class AllocatorFactory
 {
 public:
-    std::unique_ptr<IAllocatorBase> create(backend::Tag tag);
+    static std::shared_ptr<IAllocatorBase> create(backend::Tag type);
 };

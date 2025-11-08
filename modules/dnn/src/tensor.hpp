@@ -28,7 +28,7 @@ public:
     Tensor(Tensor &&other) noexcept;
     Tensor &operator=(Tensor &&other) noexcept;
 
-    Tensor(int index, std::string name, tensor::IOMode mode, tensor::Dims dims, std::shared_ptr<IAllocatorBase> allocator);
+    Tensor(int index, std::string name, tensor::IOMode mode, tensor::Dims dims, backend::Tag backend_tag);
 
 public:
     int index_ = -1;

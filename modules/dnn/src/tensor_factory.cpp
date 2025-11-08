@@ -2,7 +2,7 @@
 
 #include <NvInfer.h>
 
-Tensor TensorFactory::create(void *engine, std::shared_ptr<IAllocatorBase> allocator, int index)
+Tensor TensorFactory::create(void *engine, backend::Tag backend_tag, int index)
 {
     auto _engine = static_cast<nvinfer1::ICudaEngine*>(engine);
 
@@ -20,5 +20,5 @@ Tensor TensorFactory::create(void *engine, std::shared_ptr<IAllocatorBase> alloc
         _dims.d[i] = dims.d[i];
     }
 
-    return Tensor(index, name, _mode, _dims, allocator);
+    return Tensor(index, name, _mode, _dims, backend_tag);
 }

@@ -6,6 +6,7 @@ class Buffer
 {
 public:
     Buffer() = default;
+    Buffer(backend::Tag tag) { allocator_ = AllocatorFactory::create(tag); };
     ~Buffer();
 
     // Non-copyable
@@ -16,8 +17,9 @@ public:
     Buffer(Buffer &&other) noexcept;
     Buffer &operator=(Buffer &&) noexcept;
 
-    void setAllocator(std::shared_ptr<IAllocatorBase> allocator);
     void allocate(size_t size);
+    void release();
+    void reallocate(size_t size);
 
 public:
     std::shared_ptr<IAllocatorBase> allocator_;
