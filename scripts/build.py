@@ -21,6 +21,8 @@ def build(onnx_path, engine_path, fp16=False, verbose=False):
     config = builder.create_builder_config()
     config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, 2 << 30)
     config.set_flag(trt.BuilderFlag.GPU_FALLBACK)
+    config.set_flag(trt.BuilderFlag.SPARSE_WEIGHTS)  # Sparsity destekliyse %10–60 hızlanma
+    config.builder_optimization_level = 5             # Max optimization (TRT10+)
 
     if fp16 and builder.platform_has_fast_fp16:
         config.set_flag(trt.BuilderFlag.FP16)
@@ -52,9 +54,9 @@ def build(onnx_path, engine_path, fp16=False, verbose=False):
             # Eğer 2D feature ise -> (1, D)
             if len(shape) == 4:  # e.g. NCHW
                 c = shape[1] if shape[1] != -1 else 3
-                min_shape = (1, c, 320, 320)
-                opt_shape = (1, c, 640, 640)
-                max_shape = (4, c, 1280, 1280)
+                min_shape = (1, c, 360, 640)
+                opt_shape = (1, c, 360, 640)
+                max_shape = (1, c, 360, 640)
             elif len(shape) == 3:  # (N, seq, feat)
                 f = shape[-1] if shape[-1] != -1 else 256
                 min_shape = (1, 4, f)

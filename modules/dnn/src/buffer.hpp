@@ -6,7 +6,13 @@ class Buffer
 {
 public:
     Buffer() = default;
-    Buffer(backend::Tag tag) { allocator_ = AllocatorFactory::create(tag); };
+    Buffer(backend::Tag tag)
+    {
+        allocator_ = AllocatorFactory::create(tag);
+        size_ = 0;
+        h_data_ = nullptr;
+        d_data_ = nullptr;
+    };
     ~Buffer();
 
     // Non-copyable
@@ -25,5 +31,5 @@ public:
     std::shared_ptr<IAllocatorBase> allocator_;
     float *d_data_;
     float *h_data_;
-    size_t size_;
+    size_t size_ = 0;
 };

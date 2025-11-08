@@ -39,6 +39,7 @@ void Buffer::release()
         allocator_->free(d_data_);
     if (h_data_)
         allocator_->free_host(h_data_);
+    size_ = 0;
 }
 
 void Buffer::allocate(size_t size)

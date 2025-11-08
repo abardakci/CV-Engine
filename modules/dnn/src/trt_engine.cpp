@@ -5,8 +5,6 @@ using namespace nvinfer1;
 Logger gLogger;
 TensorFactory tensorFactory;
 
-TrtEngine::TrtEngine(ShapeMode mode) : mode_(mode) {};
-
 TrtEngine::~TrtEngine() { cudaStreamDestroy(stream_); }
 
 void TrtEngine::init(const std::string &path)
@@ -14,6 +12,7 @@ void TrtEngine::init(const std::string &path)
     if (initialized_)
         return;
     initialized_ = true;
+    cudaStreamCreate(&stream_);
 
     // Create engine & context
     runtime_.reset(create_runtime(gLogger));
@@ -21,6 +20,8 @@ void TrtEngine::init(const std::string &path)
     ctx_.reset(create_ctx(engine_.get()));
 
     // Set input and output tensors
+    int input_idx = 0;
+    int output_idx = 0;
     for (int i = 0; i < engine_->getNbIOTensors(); ++i)
     {
         const char *name = engine_->getIOTensorName(i);
@@ -31,11 +32,16 @@ void TrtEngine::init(const std::string &path)
         else if (mode == nvinfer1::TensorIOMode::kOUTPUT)
             output_ = tensorFactory.create(engine_.get(), backend::Tag::CUDA, i);
     }
+    
+    bind_tensors();
+}
 
-    ctx_->setInputTensorAddress(input_.name_.c_str(), input_.buffer_.d_data_);
-    ctx_->setOutputTensorAddress(output_.name_.c_str(), output_.buffer_.d_data_);
-
-    cudaStreamCreate(&stream_);
+bool TrtEngine::bind_tensors()
+{
+    bool success = true;
+    success = ctx_->setInputTensorAddress(input_.name_.c_str(), input_.buffer_.d_data_);
+    success = ctx_->setOutputTensorAddress(output_.name_.c_str(), output_.buffer_.d_data_);
+    return success;
 }
 
 void TrtEngine::set_input(const float *input)
