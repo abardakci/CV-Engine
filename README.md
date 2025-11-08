@@ -1,6 +1,6 @@
 # ⚙️ Build & Run Guide
 
-## 📦 Dependencies
+## Dependencies
 
 Make sure the following packages are installed:
 
@@ -9,11 +9,11 @@ Make sure the following packages are installed:
 - **TensorRT ≥ 10.0**
 - **yaml-cpp**
 
-> 💡 Optional: CUDA Toolkit & cuDNN are required for TensorRT builds.
+> CUDA Toolkit & cuDNN are required for TensorRT builds.
 
 ---
 
-🧰 Step 1: Build TensorRT Engine
+# Build TensorRT Engine
 
 Before building the framework, generate your TensorRT engine file for YOLO:
 
@@ -23,13 +23,7 @@ python3 tools/build_plan.py \
     --engine out/engines/yolov8.plan \
     --precision fp16
 
-🛠 Step 2: Build the Project
 # Run the build script
 ./build.sh
 
-🚀 Step 3: Run the Executables
-
-cd out/install/release/bin
-
-./sort_tracker --video ../../assets/demo.mp4
-./yolo --engine ../../out/engines/yolov8.plan
+Executables will be installed inside out/install directory
