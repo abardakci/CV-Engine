@@ -18,29 +18,17 @@ add_subdirectory(modules/runtime)        # libruntime
 # ----------------------------------------
 # Executable target: Object Detector
 # ----------------------------------------
-add_executable(yolo app/detect.cpp)
+add_executable(yolo app/yolo_app.cpp)
 
 target_link_libraries(yolo PUBLIC
     libruntime
 )
 
-# ----------------------------------------
-# Executable target: SORT Tracker
-# ----------------------------------------
-# add_executable(sort_tracker app/track.cpp)
+add_executable(upscaler app/upscaler_app.cpp)
 
-# target_link_libraries(sort_tracker PUBLIC
-#     libruntime
-# )
-
-# ----------------------------------------
-# Executable target: ESRGAN Upscaler
-# ----------------------------------------
-# add_executable(sort_tracker app/track.cpp)
-
-# target_link_libraries(sort_tracker PUBLIC
-#     libruntime
-# )
+target_link_libraries(upscaler PUBLIC
+    libruntime
+)
 
 # ----------------------------------------
 # Install
@@ -50,15 +38,15 @@ include(GNUInstallDirs)
 install(
     TARGETS 
         yolo
-        # sort_tracker
+        upscaler
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/config
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR})
 
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/models
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/resources/models
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR})
 
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/app/assets
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/resources/assets
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR})

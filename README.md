@@ -16,14 +16,16 @@ Make sure the following packages are installed:
 # Build TensorRT Engine
 
 Before building the framework, generate your TensorRT engine file for YOLO:
+Download yolov8n.onnx and put under ./resources/models
 
 ```bash
-python3 tools/build_plan.py \
-    --onnx models/yolov8.onnx \
-    --engine out/engines/yolov8.plan \
-    --precision fp16
+python scripts/build.py \
+    --input ./resources/models/yolov8.onnx \
+    --output ./resources/models/yolov8.plan \
 
-# Run the build script
+# Build and run yolo sample
+From project directory:
 ./build.sh
+./run.sh
 
 Executables will be installed inside out/install directory

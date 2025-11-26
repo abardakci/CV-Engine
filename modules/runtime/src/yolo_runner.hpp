@@ -1,3 +1,3 @@
 #pragma once
 
-int run(int argc, char **argv);
+int run_yolo(int argc, char **argv);

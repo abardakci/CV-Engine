@@ -53,14 +53,14 @@
             "name": "debug",
             "configurePreset": "debug",
             "targets": [
-                "yolo", "sort_tracker"
+                "yolo", "upscaler"
             ]
         },
         {
             "name": "release",
             "configurePreset": "release",
             "targets": [
-                "yolo", "sort_tracker"
+                "yolo", "upscaler"
             ]
         }
     ]
