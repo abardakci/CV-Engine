@@ -9,10 +9,10 @@ def build(onnx_path, engine_path, fp16=False, verbose=False):
     network = builder.create_network(network_flags)
     parser = trt.OnnxParser(network, logger)
 
-    print(f"🔧 Parsing ONNX: {onnx_path}")
+    print(f"Parsing ONNX: {onnx_path}")
     with open(onnx_path, "rb") as f:
         if not parser.parse(f.read()):
-            print("❌ Failed to parse ONNX file:")
+            print("Failed to parse ONNX file:")
             for i in range(parser.num_errors):
                 err = parser.get_error(i)
                 print(err)
@@ -32,7 +32,7 @@ def build(onnx_path, engine_path, fp16=False, verbose=False):
     # Detect dynamic inputs
     # ----------------------------
     num_inputs = network.num_inputs
-    print(f"📥 Found {num_inputs} input tensors:")
+    print(f"Found {num_inputs} input tensors:")
     for i in range(num_inputs):
         inp = network.get_input(i)
         print(f"  - {inp.name}: shape={inp.shape}, dtype={inp.dtype}")
@@ -41,7 +41,7 @@ def build(onnx_path, engine_path, fp16=False, verbose=False):
     is_dynamic = any(-1 in network.get_input(i).shape for i in range(num_inputs))
 
     if is_dynamic:
-        print("🌀 Dynamic input detected → adding optimization profile.")
+        print("Dynamic input detected → adding optimization profile.")
         profile = builder.create_optimization_profile()
 
         for i in range(num_inputs):
@@ -54,9 +54,9 @@ def build(onnx_path, engine_path, fp16=False, verbose=False):
             # Eğer 2D feature ise -> (1, D)
             if len(shape) == 4:  # e.g. NCHW
                 c = shape[1] if shape[1] != -1 else 3
-                min_shape = (1, c, 360, 640)
-                opt_shape = (1, c, 360, 640)
-                max_shape = (1, c, 360, 640)
+                min_shape = (1, c, 96, 96)
+                opt_shape = (1, c, 96, 96)
+                max_shape = (1, c, 96, 96)
             elif len(shape) == 3:  # (N, seq, feat)
                 f = shape[-1] if shape[-1] != -1 else 256
                 min_shape = (1, 4, f)
@@ -68,28 +68,28 @@ def build(onnx_path, engine_path, fp16=False, verbose=False):
                 opt_shape = (1, d)
                 max_shape = (4, d)
             else:
-                print(f"⚠️ Skipping unusual input shape for {name}: {shape}")
+                print(f"Skipping unusual input shape for {name}: {shape}")
                 continue
 
             profile.set_shape(name, min_shape, opt_shape, max_shape)
-            print(f"  ↳ Profile set for {name}:")
-            print(f"    min={min_shape}, opt={opt_shape}, max={max_shape}")
+            print(f"   Profile set for {name}:")
+            print(f"   min={min_shape}, opt={opt_shape}, max={max_shape}")
 
         config.add_optimization_profile(profile)
     else:
-        print("📏 All input shapes are static → no profile added.")
+        print("All input shapes are static → no profile added.")
 
     # ----------------------------
     # Build serialized engine
     # ----------------------------
-    print("🚀 Building TensorRT engine...")
+    print("Building TensorRT engine...")
     serialized_engine = builder.build_serialized_network(network, config)
     if not serialized_engine:
-        raise RuntimeError("❌ Engine build failed.")
+        raise RuntimeError("Engine build failed.")
 
     with open(engine_path, "wb") as f:
         f.write(serialized_engine)
-    print(f"✅ Engine saved to {engine_path}")
+    print(f"Engine saved to {engine_path}")
 
 
 if __name__ == "__main__":

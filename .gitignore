@@ -1,12 +1,5 @@
-.vscode*
-assets*
-build*
-*.png
-*.jpg
-*.plan
-*.onnx
 .vs*
 out*
-install*
-scripts/build.cpp
-.to_do*
+resources*
+*build*
+*install*
